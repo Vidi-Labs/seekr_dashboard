@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seekr Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card-custom {
+            background-color: #E3F5FF;
+            color: black;
+            border-radius: 0.5rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-md-2 bg-light">
+                <div class="d-flex flex-column p-3">
+                    <h4>Sidebar</h4>
+                    <ul class="nav nav-pills flex-column mb-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link active">Dashboard</a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link">Users</a>
+                        </li>
+                        <li>
+                            <a href="#" class="nav-link">Settings</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- Main Content -->
+            <div class="col-md-10">
+                <div class="container">
+                    <div class="row mt-3">
+                        <!-- Cards -->
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-custom p-3">
+                                <h5>Total Users</h5>
+                                <p id="totalUsers">66</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-custom p-3">
+                                <h5>Total Active Users</h5>
+                                <p id="totalActiveUsers">32</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-custom p-3">
+                                <h5>Total API Calls</h5>
+                                <p id="totalApiCalls">6560</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-custom p-3">
+                                <h5>Total Errors</h5>
+                                <p id="totalErrors">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Charts -->
+                    <div class="row mt-3">
+                        <div class="col-md-6 mb-3">
+                            <div class="card p-3">
+                                <h5>Users by Location</h5>
+                                <canvas id="locationChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="card p-3">
+                                <h5>Users by Device</h5>
+                                <canvas id="deviceChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Sample data for the pie charts
+        const locationData = {
+            labels: ['Dhaka', 'Hongkong', 'NY'],
+            datasets: [{
+                data: [10, 20, 30],
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+            }]
+        };
+
+        const deviceData = {
+            labels: ['iOS 16', 'iOS 17', 'Android'],
+            datasets: [{
+                data: [50, 30, 20],
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56'],
+            }]
+        };
+
+        // Creating the pie charts
+        const locationCtx = document.getElementById('locationChart').getContext('2d');
+        const locationChart = new Chart(locationCtx, {
+            type: 'pie',
+            data: locationData,
+        });
+
+        const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+        const deviceChart = new Chart(deviceCtx, {
+            type: 'pie',
+            data: deviceData,
+        });
+    </script>
+</body>
+
+</html>
