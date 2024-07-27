@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users Logs</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F4F5F7;
+        }
+
+        .sidebar-offcanvas {
+            width: 250px;
+            background-color: #FFFFFF;
+            border-right: 1px solid #E0E0E0;
+        }
+
+        .sidebar-offcanvas .nav-link {
+            color: #4A4A4A;
+            font-size: 1rem;
+            padding: 0.75rem 1.25rem;
+        }
+
+        .sidebar-offcanvas .nav-link.active {
+            color: #FFFFFF;
+            background-color: #0D6EFD;
+            border-radius: 0.375rem;
+        }
+
+        .sidebar-offcanvas .nav-link:hover {
+            background-color: #E3F5FF;
+        }
+
+        .card-custom {
+            background-color: #E3F5FF;
+            color: black;
+            border-radius: 0.5rem;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-custom h5 {
+            font-size: 1rem;
+        }
+
+        .card-custom p {
+            font-size: 1.5rem;
+        }
+
+        .chart-card {
+            background-color: #FFFFFF;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        }
+
+        .navbar {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            color: #4A4A4A;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+            <!-- Sidebar -->
+            <div class="col-auto col-md-3 col-lg-2 px-sm-2 px-0 bg-white sidebar-offcanvas d-none d-md-block">
+                <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2">
+                    <h4>Seekr</h4>
+                    <ul class="nav nav-pills flex-column mb-auto w-100">
+                        <li class="nav-item">
+                            <a href="index.html" class="nav-link">Overview</a>
+                        </li>
+                        <li>
+                            <a href="users_logs.html" class="nav-link active">Users Logs</a>
+                        </li>
+                        <li>
+                            <a href="api_logs.html" class="nav-link">API Logs</a>
+                        </li>
+                        <li>
+                            <a href="location_logs.html" class="nav-link">Location Logs</a>
+                        </li>
+                        <li>
+                            <a href="event_logs.html" class="nav-link">Event Logs</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Offcanvas Sidebar for Mobile -->
+            <div class="offcanvas offcanvas-start sidebar-offcanvas" tabindex="-1" id="offcanvasSidebar">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title">Seekr</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="nav nav-pills flex-column mb-auto">
+                        <li class="nav-item">
+                            <a href="index.html" class="nav-link">Overview</a>
+                        </li>
+                        <li>
+                            <a href="users_logs.html" class="nav-link active">Users Logs</a>
+                        </li>
+                        <li>
+                            <a href="api_logs.html" class="nav-link">API Logs</a>
+                        </li>
+                        <li>
+                            <a href="location_logs.html" class="nav-link">Location Logs</a>
+                        </li>
+                        <li>
+                            <a href="event_logs.html" class="nav-link">Event Logs</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col py-3">
+                <nav class="navbar navbar-light bg-white shadow-sm mb-3">
+                    <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <span class="navbar-brand mb-0 h1">Users Logs</span>
+                </nav>
+
+                <div class="container">
+                    <div class="row mt-3">
+                        <!-- Card for Total Users -->
+                        <div class="col-md-12 mb-3">
+                            <div class="card card-custom p-3">
+                                <h5>Total Users</h5>
+                                <p id="totalUsers">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Table for User Details -->
+                    <div class="row mt-3">
+                        <div class="col-md-12 mb-3">
+                            <div class="card chart-card">
+                                <div class="card-body">
+                                    <h5 class="card-title">User Details</h5>
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">User ID</th>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Email</th>
+                                                <th scope="col">Phone Number</th>
+                                                <th scope="col">Is Anonymous</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="usersTable">
+                                            <!-- Dynamic user rows will be inserted here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-labelledby="userDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userDetailsModalLabel">User Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Spinner -->
+                    <div id="spinner" class="d-flex justify-content-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <!-- User Details Content -->
+                    <div id="userDetailsContent" class="d-none">
+                        <h5>User Information</h5>
+                        <p><strong>User ID:</strong> <span id="userId"></span></p>
+                        <p><strong>Name:</strong> <span id="userName"></span></p>
+                        <p><strong>Email:</strong> <span id="userEmail"></span></p>
+                        <p><strong>Phone Number:</strong> <span id="userPhoneNumber"></span></p>
+                        <p><strong>Is Anonymous:</strong> <span id="userIsAnonymous"></span></p>
+
+                        <h5>Device Information</h5>
+                        <p><strong>Device Name:</strong> <span id="deviceName"></span></p>
+                        <p><strong>Device Model:</strong> <span id="deviceModel"></span></p>
+                        <p><strong>System Name:</strong> <span id="systemName"></span></p>
+                        <p><strong>System Version:</strong> <span id="systemVersion"></span></p>
+
+                        <h5>Usage Time</h5>
+                        <p><strong>From:</strong> <span id="usageFrom"></span></p>
+                        <p><strong>To:</strong> <span id="usageTo"></span></p>
+
+                        <h5>Location</h5>
+                        <p><strong>Latitude:</strong> <span id="locationLat"></span></p>
+                        <p><strong>Longitude:</strong> <span id="locationLon"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const usersTable = document.getElementById('usersTable');
+
+            // Add click event listener to each table row
+            usersTable.addEventListener('click', event => {
+                const target = event.target.closest('tr');
+                if (target) {
+                    const userId = target.dataset.userId;
+                    if (userId) {
+                        fetchUserDetails(userId);
+                    }
+                }
+            });
+
+            // Fetch and display user details
+            function fetchUserDetails(userId) {
+                const modal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
+                document.getElementById('spinner').classList.remove('d-none');
+                document.getElementById('userDetailsContent').classList.add('d-none');
+                modal.show();
+
+                fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const user = data.data.user;
+                            const device = data.data.device;
+                            const usageTime = data.data.ussageTime;
+                            const location = data.data.location;
+
+                            document.getElementById('userId').textContent = user.uid ?? '';
+                            document.getElementById('userName').textContent = user.name ?? 'N/A';
+                            document.getElementById('userEmail').textContent = user.email ?? 'N/A';
+                            document.getElementById('userPhoneNumber').textContent = user.phoneNumber ?? 'N/A';
+                            document.getElementById('userIsAnonymous').textContent = user.isAnonymous ? 'Yes' : 'No';
+
+                            document.getElementById('deviceName').textContent = device.name ?? 'N/A';
+                            document.getElementById('deviceModel').textContent = device.model ?? 'N/A';
+                            document.getElementById('systemName').textContent = device.systemName ?? 'N/A';
+                            document.getElementById('systemVersion').textContent = device.systemVersion ?? 'N/A';
+
+                            document.getElementById('usageFrom').textContent = usageTime.from ? new Date(usageTime.from).toLocaleString() : 'N/A';
+                            document.getElementById('usageTo').textContent = usageTime.to ? new Date(usageTime.to).toLocaleString() : 'N/A';
+
+                            document.getElementById('locationLat').textContent = location.lat ?? 'N/A';
+                            document.getElementById('locationLon').textContent = location.lon ?? 'N/A';
+
+                            document.getElementById('spinner').classList.add('d-none');
+                            document.getElementById('userDetailsContent').classList.remove('d-none');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching user details:', error);
+                        modal.hide();
+                    });
+            }
+
+            // Fetch data from the API and populate the table
+            fetch('https://seekr-analytics.squadhead.workers.dev/analytics/all-users')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('totalUsers').textContent = data.data.total;
+
+                        const usersTable = document.getElementById('usersTable');
+                        data.data.users.forEach(user => {
+                            const row = document.createElement('tr');
+                            row.dataset.userId = user.uid ?? '';
+                            row.innerHTML = `
+                                <td>${user.uid ?? ''}</td>
+                                <td>${user.name ?? ''}</td>
+                                <td>${user.email ?? ''}</td>
+                                <td>${user.phoneNumber ?? ''}</td>
+                                <td>${user.isAnonymous ? 'Yes' : 'No'}</td>
+                            `;
+                            usersTable.appendChild(row);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        });
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
