@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Event Log Details</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #F4F5F7;
+        }
+
+        .sidebar-offcanvas {
+            width: 250px;
+            background-color: #FFFFFF;
+            border-right: 1px solid #E0E0E0;
+        }
+
+        .sidebar-offcanvas .nav-link {
+            color: #4A4A4A;
+            font-size: 1rem;
+            padding: 0.75rem 1.25rem;
+        }
+
+        .sidebar-offcanvas .nav-link.active {
+            color: #FFFFFF;
+            background-color: #0D6EFD;
+            border-radius: 0.375rem;
+        }
+
+        .sidebar-offcanvas .nav-link:hover {
+            background-color: #E3F5FF;
+        }
+
+        .card-custom {
+            background-color: #E3F5FF;
+            color: black;
+            border-radius: 0.5rem;
+            font-size: 1.2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-custom h5 {
+            font-size: 1rem;
+        }
+
+        .card-custom p {
+            font-size: 1.5rem;
+        }
+
+        .chart-card {
+            background-color: #FFFFFF;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+        }
+
+        .navbar {
+            background-color: #FFFFFF;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            color: #4A4A4A;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="row flex-nowrap">
+            <!-- Sidebar -->
+            <div class="col-auto col-md-3 col-lg-2 px-sm-2 px-0 bg-white sidebar-offcanvas d-none d-md-block">
+                <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2">
+                    <h4>Seekr</h4>
+                    <ul class="nav nav-pills flex-column mb-auto w-100">
+                        <li class="nav-item">
+                            <a href="index.html" class="nav-link">Overview</a>
+                        </li>
+                        <li>
+                            <a href="users_logs.html" class="nav-link">Users Logs</a>
+                        </li>
+                        <li>
+                            <a href="active_users.html" class="nav-link">Active Users Logs</a>
+                        </li>
+                        <li>
+                            <a href="location_logs.html" class="nav-link">Location Logs</a>
+                        </li>
+                        <li>
+                            <a href="event_logs.html" class="nav-link active">Event Logs</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Offcanvas Sidebar for Mobile -->
+            <div class="offcanvas offcanvas-start sidebar-offcanvas" tabindex="-1" id="offcanvasSidebar">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title">Seekr</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="nav nav-pills flex-column mb-auto">
+                        <li class="nav-item">
+                            <a href="index.html" class="nav-link">Overview</a>
+                        </li>
+                        <li>
+                            <a href="users_logs.html" class="nav-link">Users Logs</a>
+                        </li>
+                        <li>
+                            <a href="api_logs.html" class="nav-link">API Logs</a>
+                        </li>
+                        <li>
+                            <a href="location_logs.html" class="nav-link">Location Logs</a>
+                        </li>
+                        <li>
+                            <a href="event_logs.html" class="nav-link active">Event Logs</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col py-3">
+                <nav class="navbar navbar-light bg-white shadow-sm mb-3">
+                    <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <span class="navbar-brand mb-0 h1">User Event Log Details</span>
+                </nav>
+
+                <div class="container">
+                    <div class="row mt-3">
+                        <!-- Card for User ID -->
+                        <div class="col-md-12 mb-3">
+                            <div class="card card-custom p-3">
+                                <h5>User ID</h5>
+                                <p id="userId">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Table for Event Log Details -->
+                    <div class="row mt-3">
+                        <div class="col-md-12 mb-3">
+                            <div class="card chart-card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Event Log Details</h5>
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Session ID</th>
+                                                <th scope="col">Event Name</th>
+                                                <th scope="col">Event Timestamp</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="eventLogTable">
+                                            <!-- Dynamic event log rows will be inserted here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const eventLogDetailsUrl = 'https://localhost:7150/api/Analytics/get-user-event-log-details';
+        const eventLogTableBody = document.getElementById('eventLogTable');
+        const userIdElement = document.getElementById('userId');
+
+        // Function to fetch event log details data
+        async function fetchEventLogDetails(userId) {
+            try {
+                const response = await fetch(`${eventLogDetailsUrl}?userId=${userId}`);
+                const data = await response.json();
+
+                // Update user ID
+                userIdElement.textContent = userId;
+
+                // Populate event log table
+                eventLogTableBody.innerHTML = ''; // Clear existing rows
+                data.forEach(log => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${log.sessionId}</td>
+                        <td>${log.eventName}</td>
+                        <td>${log.eventTimestamp}</td>
+                    `;
+                    eventLogTableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching event log details:', error);
+            }
+        }
+
+        // Extract userId from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+
+        // Fetch event log details for the user on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (userId) {
+                fetchEventLogDetails(userId);
+            } else {
+                console.error('User ID not provided in URL parameters.');
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
+</body>
+
+</html>
