@@ -68,6 +68,13 @@
         .offcanvas-body .nav-link {
             color: #FFF;
         }
+
+        .spinner-border {
+            display: none;
+            width: 3rem;
+            height: 3rem;
+            border-width: .3rem;
+        }
     </style>
 </head>
 
@@ -75,28 +82,37 @@
     <div class="container-fluid">
         <div class="row flex-nowrap">
             <!-- Sidebar -->
-            <div class="col-auto col-md-3 col-lg-2 px-sm-2 px-0">
+            <div class="col-auto col-md-3 col-lg-2 px-sm-2 px-0 bg-dark">
                 <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
                     <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
                         <span class="fs-5 d-none d-sm-inline">Sidebar</span>
                     </a>
-                    <ul class="nav nav-pills flex-column mb-auto">
+                    <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start">
                         <li class="nav-item">
-                            <a href="index.html" class="nav-link">Overview</a>
-                        </li>
-                        <li>
-                            <a href="users_logs.html" class="nav-link">Users Logs</a>
-                        </li>
-                        <li>
-                            <a href="api_logs.html" class="nav-link">API Logs</a>
-                        </li>
-                        <li>
-                            <a href="location_logs.html" class="nav-link">Location Logs</a>
-                        </li>
-                        <li>
-                            <a href="event_logs.html" class="nav-link active">Event Logs</a>
+                            <a href="#" class="nav-link active">
+                                <i class="fas fa-file-alt"></i> <span class="ms-1 d-none d-sm-inline">Event Log</span>
+                            </a>
                         </li>
                     </ul>
+                    <div class="offcanvas-body">
+                        <ul class="nav nav-pills flex-column mb-auto">
+                            <li class="nav-item">
+                                <a href="index.html" class="nav-link">Overview</a>
+                            </li>
+                            <li>
+                                <a href="users_logs.html" class="nav-link">Users Logs</a>
+                            </li>
+                            <li>
+                                <a href="api_logs.html" class="nav-link">API Logs</a>
+                            </li>
+                            <li>
+                                <a href="location_logs.html" class="nav-link">Location Logs</a>
+                            </li>
+                            <li>
+                                <a href="event_logs.html" class="nav-link active">Event Logs</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
 
@@ -156,7 +172,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <table class="table table-striped">
+                    <div class="spinner-border text-primary" role="status" id="loadingSpinner">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <table class="table table-striped mt-3">
                         <thead>
                             <tr>
                                 <th scope="col">Event Title</th>
@@ -197,7 +216,10 @@
                                     <td>${session.from ? new Date(session.from).toLocaleString() : ''}</td>
                                     <td>${session.to ? new Date(session.to).toLocaleString() : ''}</td>
                                 `;
-                                row.addEventListener('click', () => fetchSessionDetails(session.session));
+                                row.addEventListener('click', () => {
+                                    showSpinner();
+                                    fetchSessionDetails(session.session);
+                                });
                                 sessionsTable.appendChild(row);
                             });
                         }
@@ -228,12 +250,21 @@
                             sessionEventsTable.appendChild(row);
                         });
 
-                        // Show the modal
+                        // Show the modal and hide the spinner
                         const sessionDetailsModal = new bootstrap.Modal(document.getElementById('sessionDetailsModal'));
                         sessionDetailsModal.show();
                     }
                 })
-                .catch(error => console.error('Error fetching session details:', error));
+                .catch(error => console.error('Error fetching session details:', error))
+                .finally(() => hideSpinner());
+        }
+
+        function showSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'block';
+        }
+
+        function hideSpinner() {
+            document.getElementById('loadingSpinner').style.display = 'none';
         }
     </script>
 
