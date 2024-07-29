@@ -241,11 +241,11 @@
                         data.data.events.forEach(event => {
                             const row = document.createElement('tr');
                             row.innerHTML = `
-                                <td>${event.event.title ?? ''}</td>
-                                <td>${event.event.details ?? ''}</td>
-                                <td>${event.createdAt ? new Date(event.createdAt).toLocaleString() : ''}</td>
-                                <td>${event.device.name ?? ''}</td>
-                                <td>${event.device.model ?? ''}</td>
+                                <td>${event?.event?.title ?? ''}</td>
+                                <td>${event?.event?.details ?? ''}</td>
+                                <td>${event?.createdAt ? new Date(event.createdAt).toLocaleString() : ''}</td>
+                                <td>${event?.device?.name ?? ''}</td>
+                                <td>${event?.device?.model ?? ''}</td>
                             `;
                             sessionEventsTable.appendChild(row);
                         });
