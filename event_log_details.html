@@ -49,12 +49,47 @@
             font-size: 1.5rem;
             color: #4A4A4A;
         }
+
+        .offcanvas-backdrop {
+            background-color: #000;
+        }
+
+        .offcanvas-body {
+            padding: 1rem;
+            color: #FFF;
+        }
+
+        .offcanvas-body .nav-link.active {
+            font-weight: bold;
+            color: #FFF;
+            background-color: #41B9A5;
+        }
+
+        .offcanvas-body .nav-link {
+            color: #FFF;
+        }
     </style>
 </head>
 
 <body>
     <div class="container-fluid">
         <div class="row flex-nowrap">
+            <!-- Sidebar -->
+            <div class="col-auto col-md-3 col-lg-2 px-sm-2 px-0 bg-dark">
+                <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+                    <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                        <span class="fs-5 d-none d-sm-inline">Sidebar</span>
+                    </a>
+                    <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link active">
+                                <i class="fas fa-file-alt"></i> <span class="ms-1 d-none d-sm-inline">Event Log</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
             <!-- Main Content -->
             <div class="col py-3">
                 <nav class="navbar navbar-light bg-white shadow-sm mb-3">
@@ -102,6 +137,34 @@
         </div>
     </div>
 
+    <!-- Modal for session details -->
+    <div class="modal fade" id="sessionDetailsModal" tabindex="-1" aria-labelledby="sessionDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="sessionDetailsModalLabel">Session Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Event Title</th>
+                                <th scope="col">Event Details</th>
+                                <th scope="col">Created At</th>
+                                <th scope="col">Device Name</th>
+                                <th scope="col">Device Model</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessionEventsTable">
+                            <!-- Dynamic session event rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Fetch and display session details -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -124,6 +187,7 @@
                                     <td>${session.from ? new Date(session.from).toLocaleString() : ''}</td>
                                     <td>${session.to ? new Date(session.to).toLocaleString() : ''}</td>
                                 `;
+                                row.addEventListener('click', () => fetchSessionDetails(session.session));
                                 sessionsTable.appendChild(row);
                             });
                         }
@@ -133,6 +197,34 @@
                 console.error('UID not provided in the URL query string');
             }
         });
+
+        function fetchSessionDetails(sessionId) {
+            fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/sessions/${sessionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const sessionEventsTable = document.getElementById('sessionEventsTable');
+                        sessionEventsTable.innerHTML = ''; // Clear previous data
+
+                        data.data.events.forEach(event => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${event.event.title ?? ''}</td>
+                                <td>${event.event.details ?? ''}</td>
+                                <td>${event.createdAt ? new Date(event.createdAt).toLocaleString() : ''}</td>
+                                <td>${event.device.name ?? ''}</td>
+                                <td>${event.device.model ?? ''}</td>
+                            `;
+                            sessionEventsTable.appendChild(row);
+                        });
+
+                        // Show the modal
+                        const sessionDetailsModal = new bootstrap.Modal(document.getElementById('sessionDetailsModal'));
+                        sessionDetailsModal.show();
+                    }
+                })
+                .catch(error => console.error('Error fetching session details:', error));
+        }
     </script>
 
     <!-- Bootstrap JS -->
