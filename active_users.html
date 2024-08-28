@@ -264,26 +264,39 @@
             spinner.classList.add('d-none');
             userDetailsContent.classList.remove('d-none');
 
-            // Update UI with fetched data
-            document.getElementById('totalUsers').textContent = data.totalUsers;
-            const usersTable = document.getElementById('usersTable');
-            usersTable.innerHTML = '';
+            // Debug: Log the response data
+            console.log('API response:', data);
 
-            data.users.forEach(user => {
-                const row = `
-                    <tr>
-                        <td>${user.userId}</td>
-                        <td>${user.name}</td>
-                        <td>${user.email}</td>
-                        <td>${user.phoneNumber}</td>
-                        <td>${user.isAnonymous ? 'Yes' : 'No'}</td>
-                    </tr>
-                `;
-                usersTable.insertAdjacentHTML('beforeend', row);
-            });
+            // Access the correct data fields
+            if (data.data && Array.isArray(data.data.users)) {
+                document.getElementById('totalUsers').textContent = data.data.total;
+                const usersTable = document.getElementById('usersTable');
+                usersTable.innerHTML = '';
+
+                data.data.users.forEach(user => {
+                    const row = `
+                        <tr>
+                            <td>${user.uid}</td>
+                            <td>${user.name || 'N/A'}</td>
+                            <td>${user.email || 'N/A'}</td>
+                            <td>${user.phoneNumber || 'N/A'}</td>
+                            <td>${user.isAnonymous ? 'Yes' : 'No'}</td>
+                        </tr>
+                    `;
+                    usersTable.insertAdjacentHTML('beforeend', row);
+                });
+            } else {
+                console.error('Unexpected data format:', data);
+                // Handle the case where `data.users` is missing or not an array
+                document.getElementById('totalUsers').textContent = '0';
+                document.getElementById('usersTable').innerHTML = '<tr><td colspan="5">No user data available</td></tr>';
+            }
         })
         .catch(error => {
             console.error('Error fetching data:', error);
+            // Hide spinner even if there's an error
+            spinner.classList.add('d-none');
+            userDetailsContent.classList.remove('d-none');
         });
     };
 
@@ -311,6 +324,7 @@
     // Fetch initial data for "Last Month" on page load
     fetchData('LAST_MONTH');
 });
+
 </script>
 </body> </html> 
 
