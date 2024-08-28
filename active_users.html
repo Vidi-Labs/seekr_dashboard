@@ -139,6 +139,19 @@
 
                 <div class="container">
                     <div class="row mt-3">
+                        <!-- Dropdown for Time Range Selection -->
+                        <div class="col-md-12 mb-3">
+                            <select class="form-select" id="timeRangeSelect">
+                                <option value="LAST_MONTH">Last Month</option>
+                                <option value="LAST_WEEK">Last Week</option>
+                                <option value="CUSTOM">Custom Range</option>
+                            </select>
+                        </div>
+                        <!-- Date Picker for Custom Range -->
+                        <div class="col-md-6 mb-3 d-none" id="dateRangePicker">
+                            <input type="date" id="startDate" class="form-control mb-2" placeholder="Start Date">
+                            <input type="date" id="endDate" class="form-control" placeholder="End Date">
+                        </div>
                         <!-- Card for Total Users -->
                         <div class="col-md-12 mb-3">
                             <div class="card card-custom p-3">
@@ -198,115 +211,95 @@
                         <p><strong>Name:</strong> <span id="userName"></span></p>
                         <p><strong>Email:</strong> <span id="userEmail"></span></p>
                         <p><strong>Phone Number:</strong> <span id="userPhoneNumber"></span></p>
-                        <p><strong>Is Anonymous:</strong> <span id="userIsAnonymous"></span></p>
+                        <p><strong>Is Anonymous:</strong> <span id="userIsAnonymous"></span></p> </div> </div> </div> </div> </div>
 
-                        <h5>Device Information</h5>
-                        <p><strong>Device Name:</strong> <span id="deviceName"></span></p>
-                        <p><strong>Device Model:</strong> <span id="deviceModel"></span></p>
-                        <p><strong>System Name:</strong> <span id="systemName"></span></p>
-                        <p><strong>System Version:</strong> <span id="systemVersion"></span></p>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-                        <h5>Usage Time</h5>
-                        <p><strong>From:</strong> <span id="usageFrom"></span></p>
-                        <p><strong>To:</strong> <span id="usageTo"></span></p>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const timeRangeSelect = document.getElementById('timeRangeSelect');
+        const dateRangePicker = document.getElementById('dateRangePicker');
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
 
-                        <h5>Location</h5>
-                        <p><strong>Latitude:</strong> <span id="locationLat"></span></p>
-                        <p><strong>Longitude:</strong> <span id="locationLon"></span></p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        // Function to fetch data based on selected time range
+        const fetchData = (timeRange, startDate = null, endDate = null) => {
+            // Show spinner or loading indicator
+            const spinner = document.getElementById('spinner');
+            const userDetailsContent = document.getElementById('userDetailsContent');
+            spinner.classList.remove('d-none');
+            userDetailsContent.classList.add('d-none');
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const usersTable = document.getElementById('usersTable');
+            // Prepare API URL and parameters
+            const url = 'YOUR_API_ENDPOINT_HERE'; // Replace with your actual API endpoint
+            const params = {
+                timeRange: timeRange,
+                startDate: startDate,
+                endDate: endDate
+            };
 
-            // Add click event listener to each table row
-            usersTable.addEventListener('click', event => {
-                const target = event.target.closest('tr');
-                if (target) {
-                    const userId = target.dataset.userId;
-                    if (userId) {
-                        fetchUserDetails(userId);
-                    }
+            // Perform API call (fetch or axios)
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(params)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Hide spinner and show content
+                spinner.classList.add('d-none');
+                userDetailsContent.classList.remove('d-none');
+
+                // Update UI with fetched data
+                document.getElementById('totalUsers').textContent = data.totalUsers;
+                const usersTable = document.getElementById('usersTable');
+                usersTable.innerHTML = '';
+
+                data.users.forEach(user => {
+                    const row = `
+                        <tr>
+                            <td>${user.userId}</td>
+                            <td>${user.name}</td>
+                            <td>${user.email}</td>
+                            <td>${user.phoneNumber}</td>
+                            <td>${user.isAnonymous ? 'Yes' : 'No'}</td>
+                        </tr>
+                    `;
+                    usersTable.insertAdjacentHTML('beforeend', row);
+                });
+            })
+            .catch(error => {
+                console.error('Error fetching data:', error);
+            });
+        };
+
+        // Event listener for time range selection
+        timeRangeSelect.addEventListener('change', function () {
+            const selectedRange = timeRangeSelect.value;
+
+            if (selectedRange === 'CUSTOM') {
+                dateRangePicker.classList.remove('d-none');
+            } else {
+                dateRangePicker.classList.add('d-none');
+                fetchData(selectedRange);
+            }
+        });
+
+        // Event listener for date range picker
+        [startDateInput, endDateInput].forEach(input => {
+            input.addEventListener('change', function () {
+                if (startDateInput.value && endDateInput.value) {
+                    fetchData('CUSTOM', startDateInput.value, endDateInput.value);
                 }
             });
-
-            // Fetch and display user details
-            function fetchUserDetails(userId) {
-                const modal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
-                document.getElementById('spinner').classList.remove('d-none');
-                document.getElementById('userDetailsContent').classList.add('d-none');
-                modal.show();
-
-                fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            const user = data.data.user;
-                            const device = data.data.device;
-                            const usageTime = data.data.ussageTime;
-                            const location = data.data.location;
-
-                            document.getElementById('userId').textContent = user.uid ?? '';
-                            document.getElementById('userName').textContent = user.name ?? 'N/A';
-                            document.getElementById('userEmail').textContent = user.email ?? 'N/A';
-                            document.getElementById('userPhoneNumber').textContent = user.phoneNumber ?? 'N/A';
-                            document.getElementById('userIsAnonymous').textContent = user.isAnonymous ? 'Yes' : 'No';
-
-                            document.getElementById('deviceName').textContent = device.name ?? 'N/A';
-                            document.getElementById('deviceModel').textContent = device.model ?? 'N/A';
-                            document.getElementById('systemName').textContent = device.systemName ?? 'N/A';
-                            document.getElementById('systemVersion').textContent = device.systemVersion ?? 'N/A';
-
-                            document.getElementById('usageFrom').textContent = usageTime.from ? new Date(usageTime.from).toLocaleString() : 'N/A';
-                            document.getElementById('usageTo').textContent = usageTime.to ? new Date(usageTime.to).toLocaleString() : 'N/A';
-
-                            document.getElementById('locationLat').textContent = location.lat ?? 'N/A';
-                            document.getElementById('locationLon').textContent = location.lon ?? 'N/A';
-
-                            document.getElementById('spinner').classList.add('d-none');
-                            document.getElementById('userDetailsContent').classList.remove('d-none');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error fetching user details:', error);
-                        modal.hide();
-                    });
-            }
-
-            // Fetch data from the API and populate the table
-            fetch('https://seekr-analytics.squadhead.workers.dev/analytics/active-users')
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.getElementById('totalUsers').textContent = data.data.total;
-
-                        const usersTable = document.getElementById('usersTable');
-                        data.data.users.forEach(user => {
-                            const row = document.createElement('tr');
-                            row.dataset.userId = user.uid ?? '';
-                            row.innerHTML = `
-                                <td>${user.uid ?? ''}</td>
-                                <td>${user.name ?? ''}</td>
-                                <td>${user.email ?? ''}</td>
-                                <td>${user.phoneNumber ?? ''}</td>
-                                <td>${user.isAnonymous ? 'Yes' : 'No'}</td>
-                            `;
-                            usersTable.appendChild(row);
-                        });
-                    }
-                })
-                .catch(error => console.error('Error fetching data:', error));
         });
-    </script>
 
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+        // Fetch initial data for "Last Month" on page load
+        fetchData('LAST_MONTH');
+    });
+</script>
+</body> </html> 
 
-</html>
