@@ -247,38 +247,45 @@
     
         // Fetch and update pie chart data
         const updatePieChart = (timeRange, startDate = null, endDate = null) => {
-            let params;
-    
-            if (timeRange === 'CUSTOM') {
-                params = {
-                    "lastActivity": "CUSTOM",
-                    "dateRange": {
-                        "from": startDate,
-                        "to": endDate
-                    }
-                };
-            } else {
-                params = {
-                    "lastActivity": timeRange
-                };
+    let params;
+
+    if (timeRange === 'CUSTOM') {
+        params = {
+            "lastActivity": "CUSTOM",
+            "dateRange": {
+                "from": startDate,
+                "to": endDate
             }
-    
-            fetch('https://seekr-analytics.squadhead.workers.dev/analytics/location', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(params)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const countries = data.data.countries;
-                        pieChart.data.labels = Object.keys(countries);
-                        pieChart.data.datasets[0].data = Object.values(countries);
-                        pieChart.update();
-                    }
-                })
-                .catch(error => console.error('Error fetching chart data:', error));
         };
+    } else {
+        params = {
+            "lastActivity": timeRange
+        };
+    }
+
+    fetch('https://seekr-analytics.squadhead.workers.dev/analytics/location', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Aggregating the data by country
+                const countriesData = data.data.reduce((acc, location) => {
+                    const country = location.country || 'Unknown';
+                    acc[country] = (acc[country] || 0) + 1;
+                    return acc;
+                }, {});
+
+                // Updating the pie chart
+                pieChart.data.labels = Object.keys(countriesData);
+                pieChart.data.datasets[0].data = Object.values(countriesData);
+                pieChart.update();
+            }
+        })
+        .catch(error => console.error('Error fetching chart data:', error));
+};
     
         // Initial Pie Chart Update
         updatePieChart('LAST_MONTH');
