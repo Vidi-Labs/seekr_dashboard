@@ -68,6 +68,7 @@
         .navbar-brand {
             font-size: 1.5rem;
             color: #4A4A4A;
+            padding-left: 15px; /* Added padding for better spacing */
         }
 
         .content-header {
@@ -81,6 +82,23 @@
             position: relative;
             height: 40vh;
             margin-top: 2rem;
+        }
+
+        @media (max-width: 767px) {
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .navbar-brand {
+                padding-left: 0;
+                text-align: center;
+                width: 100%;
+            }
+
+            .navbar-toggler {
+                margin-left: auto;
+            }
         }
     </style>
 </head>
@@ -185,7 +203,7 @@
                             <option value="CUSTOM">Custom Range</option>
                         </select>
 
-                        <div id="customDateRange" class="d-none">
+                        <div id="customDateRange" class="d-none mt-2">
                             <input type="date" id="startDate" class="form-control d-inline w-auto">
                             <input type="date" id="endDate" class="form-control d-inline w-auto">
                         </div>
@@ -204,6 +222,7 @@
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Fetch data for cards
         fetch('https://seekr-analytics.squadhead.workers.dev/analytics/dashboard')
