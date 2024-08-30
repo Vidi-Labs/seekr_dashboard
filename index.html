@@ -217,7 +217,7 @@
                 }
             })
             .catch(error => console.error('Error fetching data:', error));
-
+    
         // Initialize Pie Chart
         const ctx = document.getElementById('locationPieChart').getContext('2d');
         let pieChart = new Chart(ctx, {
@@ -244,9 +244,25 @@
                 }
             }
         });
-
+    
         // Fetch and update pie chart data
-        const updatePieChart = (params) => {
+        const updatePieChart = (timeRange, startDate = null, endDate = null) => {
+            let params;
+    
+            if (timeRange === 'CUSTOM') {
+                params = {
+                    "lastActivity": "CUSTOM",
+                    "dateRange": {
+                        "from": startDate,
+                        "to": endDate
+                    }
+                };
+            } else {
+                params = {
+                    "lastActivity": timeRange
+                };
+            }
+    
             fetch('https://seekr-analytics.squadhead.workers.dev/analytics/location', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -263,34 +279,30 @@
                 })
                 .catch(error => console.error('Error fetching chart data:', error));
         };
-
+    
         // Initial Pie Chart Update
-        updatePieChart({ range: 'LAST_MONTH' });
-
+        updatePieChart('LAST_MONTH');
+    
         // Time Range Select Handler
         document.getElementById('timeRangeSelect').addEventListener('change', function () {
             const selectedRange = this.value;
             const customDateRange = document.getElementById('customDateRange');
-
+    
             if (selectedRange === 'CUSTOM') {
                 customDateRange.classList.remove('d-none');
             } else {
                 customDateRange.classList.add('d-none');
-                updatePieChart({ range: selectedRange });
+                updatePieChart(selectedRange);
             }
         });
-
+    
         // Custom Date Range Update
         document.getElementById('endDate').addEventListener('change', function () {
             const startDate = document.getElementById('startDate').value;
             const endDate = this.value;
-
+    
             if (startDate && endDate) {
-                updatePieChart({
-                    range: 'CUSTOM',
-                    startDate: startDate,
-                    endDate: endDate
-                });
+                updatePieChart('CUSTOM', startDate, endDate);
             }
         });
     </script>
