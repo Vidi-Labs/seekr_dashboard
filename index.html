@@ -97,7 +97,7 @@
             }
 
             .navbar-toggler {
-                margin-left: auto;
+                margin-right: auto; /* Aligned the burger button to the left */
             }
         }
     </style>
@@ -139,19 +139,19 @@
                 <div class="offcanvas-body">
                     <ul class="nav nav-pills flex-column mb-auto">
                         <li class="nav-item">
-                            <a href="#" class="nav-link active">Overview</a>
+                            <a href="index.html" class="nav-link active">Overview</a>
                         </li>
                         <li>
-                            <a href="#" class="nav-link">Users Logs</a>
+                            <a href="users_logs.html" class="nav-link">Users Logs</a>
                         </li>
                         <li>
-                            <a href="#" class="nav-link">API Logs</a>
+                            <a href="active_users.html" class="nav-link">Active Users Logs</a>
                         </li>
                         <li>
-                            <a href="#" class="nav-link">Location Logs</a>
+                            <a href="location_logs.html" class="nav-link">Location Logs</a>
                         </li>
                         <li>
-                            <a href="#" class="nav-link">Event Logs</a>
+                            <a href="event_logs.html" class="nav-link">Event Logs</a>
                         </li>
                     </ul>
                 </div>
@@ -236,7 +236,7 @@
                 }
             })
             .catch(error => console.error('Error fetching data:', error));
-    
+
         // Initialize Pie Chart
         const ctx = document.getElementById('locationPieChart').getContext('2d');
         let pieChart = new Chart(ctx, {
@@ -263,57 +263,57 @@
                 }
             }
         });
-    
+
         // Fetch and update pie chart data
         const updatePieChart = (timeRange, startDate = null, endDate = null) => {
-    let params;
+            let params;
 
-    if (timeRange === 'CUSTOM') {
-        params = {
-            "lastActivity": "CUSTOM",
-            "dateRange": {
-                "from": startDate,
-                "to": endDate
+            if (timeRange === 'CUSTOM') {
+                params = {
+                    "lastActivity": "CUSTOM",
+                    "dateRange": {
+                        "from": startDate,
+                        "to": endDate
+                    }
+                };
+            } else {
+                params = {
+                    "lastActivity": timeRange
+                };
             }
-        };
-    } else {
-        params = {
-            "lastActivity": timeRange
-        };
-    }
 
-    fetch('https://seekr-analytics.squadhead.workers.dev/analytics/location', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params)
-    })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Aggregating the data by country
-                const countriesData = data.data.reduce((acc, location) => {
-                    const country = location.country || 'Unknown';
-                    acc[country] = (acc[country] || 0) + 1;
-                    return acc;
-                }, {});
+            fetch('https://seekr-analytics.squadhead.workers.dev/analytics/location', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(params)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Aggregating the data by country
+                        const countriesData = data.data.reduce((acc, location) => {
+                            const country = location.country || 'Unknown';
+                            acc[country] = (acc[country] || 0) + 1;
+                            return acc;
+                        }, {});
 
-                // Updating the pie chart
-                pieChart.data.labels = Object.keys(countriesData);
-                pieChart.data.datasets[0].data = Object.values(countriesData);
-                pieChart.update();
-            }
-        })
-        .catch(error => console.error('Error fetching chart data:', error));
-};
-    
+                        // Updating the pie chart
+                        pieChart.data.labels = Object.keys(countriesData);
+                        pieChart.data.datasets[0].data = Object.values(countriesData);
+                        pieChart.update();
+                    }
+                })
+                .catch(error => console.error('Error fetching chart data:', error));
+        };
+
         // Initial Pie Chart Update
         updatePieChart('LAST_MONTH');
-    
+
         // Time Range Select Handler
         document.getElementById('timeRangeSelect').addEventListener('change', function () {
             const selectedRange = this.value;
             const customDateRange = document.getElementById('customDateRange');
-    
+
             if (selectedRange === 'CUSTOM') {
                 customDateRange.classList.remove('d-none');
             } else {
@@ -321,12 +321,12 @@
                 updatePieChart(selectedRange);
             }
         });
-    
+
         // Custom Date Range Update
         document.getElementById('endDate').addEventListener('change', function () {
             const startDate = document.getElementById('startDate').value;
             const endDate = this.value;
-    
+
             if (startDate && endDate) {
                 updatePieChart('CUSTOM', startDate, endDate);
             }
