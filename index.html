@@ -41,19 +41,12 @@
             border-radius: 0.5rem;
             font-size: 1.2rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-custom h5 {
-            font-size: 1rem;
-        }
-
-        .card-custom p {
-            font-size: 1.5rem;
+            padding: 1.5rem;
         }
 
         .chart-card {
             background-color: #FFFFFF;
-            padding: 1rem;
+            padding: 1.5rem;
             border-radius: 0.5rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
@@ -65,11 +58,34 @@
         .navbar {
             background-color: #FFFFFF;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 1rem;
         }
 
         .navbar-brand {
             font-size: 1.5rem;
             color: #4A4A4A;
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        #customDateRange {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 767.98px) {
+            .sidebar-offcanvas {
+                display: none;
+            }
+
+            #offcanvasSidebar {
+                display: block;
+            }
         }
     </style>
 </head>
@@ -104,7 +120,7 @@
             <!-- Offcanvas Sidebar for Mobile -->
             <div class="offcanvas offcanvas-start sidebar-offcanvas" tabindex="-1" id="offcanvasSidebar">
                 <div class="offcanvas-header">
-                    <h5 class="offcanvas-title">ByeWind</h5>
+                    <h5 class="offcanvas-title">Seekr</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
                 </div>
                 <div class="offcanvas-body">
@@ -138,53 +154,39 @@
                 </nav>
 
                 <div class="container">
-                    <div class="row mt-3">
-                        <!-- Cards -->
-                        <div class="col-md-3 mb-3">
-                            <div class="card card-custom p-3">
-                                <h5>Total Users</h5>
-                                <p id="totalUsers">0</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card card-custom p-3">
-                                <h5>Active Users</h5>
-                                <p id="totalActiveUsers">0</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card card-custom p-3">
-                                <h5>API Requests</h5>
-                                <p id="totalApiCalls">0</p>
-                            </div>
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <div class="card card-custom p-3">
-                                <h5>Errors</h5>
-                                <p id="totalErrors">0</p>
+                    <!-- Time Range Dropdown -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="timeRangeSelect">Select Time Range:</label>
+                                <select class="form-select" id="timeRangeSelect">
+                                    <option value="LAST_MONTH" selected>Last Month</option>
+                                    <option value="LAST_WEEK">Last Week</option>
+                                    <option value="CUSTOM">Custom</option>
+                                </select>
                             </div>
                         </div>
                     </div>
-                    <!-- Charts -->
-                    <div class="row mt-3">
-                        <div class="col-md-6 mb-3">
-                            <div class="chart-card">
-                                <h5>Users by Device</h5>
-                                <canvas id="deviceChart"></canvas>
-                            </div>
+
+                    <!-- Custom Date Range -->
+                    <div id="customDateRange" class="row mt-3">
+                        <div class="col-md-6">
+                            <input type="date" id="startDate" class="form-control" placeholder="Start Date">
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="chart-card">
-                                <h5>Users by Location</h5>
-                                <canvas id="locationChart"></canvas>
-                            </div>
+                        <div class="col-md-6">
+                            <input type="date" id="endDate" class="form-control" placeholder="End Date">
                         </div>
                     </div>
+
+                    <!-- Map and Pie Chart -->
                     <div class="row mt-3">
+                        <div class="col-12 mb-3">
+                            <div id="map"></div>
+                        </div>
                         <div class="col-12">
                             <div class="chart-card">
-                                <h5>Total Users</h5>
-                                <canvas id="totalUsersChart"></canvas>
+                                <h5>Users by Country</h5>
+                                <canvas id="countryPieChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -193,76 +195,107 @@
         </div>
     </div>
 
+    <!-- Leaflet.js for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
-        // Fetch data from the API
-        fetch('https://seekr-analytics.squadhead.workers.dev/analytics/dashboard')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('totalUsers').textContent = data.data.totalUsers;
-                    document.getElementById('totalActiveUsers').textContent = data.data.totalActiveUsers;
-                    document.getElementById('totalApiCalls').textContent = data.data.totalApiCalls;
-                    document.getElementById('totalErrors').textContent = data.data.totalErrors;
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize map
+            const map = L.map('map').setView([22.2783, 114.1701], 12); // Default to Hong Kong coordinates
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18
+            }).addTo(map);
+
+            const timeRangeSelect = document.getElementById('timeRangeSelect');
+            const customDateRange = document.getElementById('customDateRange');
+            const countryPieChartCtx = document.getElementById('countryPieChart').getContext('2d');
+            let countryPieChart;
+
+            const fetchLocationData = (params) => {
+                fetch('https://seekr-analytics.squadhead.workers.dev/location', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(params),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const locations = data.locations;
+
+                    // Clear map
+                    map.eachLayer(layer => {
+                        if (layer instanceof L.Marker) {
+                            map.removeLayer(layer);
+                        }
+                    });
+
+                    // Add markers to map
+                    locations.forEach(location => {
+                        const { latitude, longitude } = location;
+                        L.marker([latitude, longitude]).addTo(map);
+                    });
+
+                    // Prepare data for pie chart
+                    const countryCounts = locations.reduce((acc, location) => {
+                        const { country } = location;
+                        acc[country] = (acc[country] || 0) + 1;
+                        return acc;
+                    }, {});
+
+                    const pieData = {
+                        labels: Object.keys(countryCounts),
+                        datasets: [{
+                            label: 'Users by Country',
+                            data: Object.values(countryCounts),
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
+                        }]
+                    };
+
+                    // Update or create the pie chart
+                    if (countryPieChart) {
+                        countryPieChart.data = pieData;
+                        countryPieChart.update();
+                    } else {
+                        countryPieChart = new Chart(countryPieChartCtx, {
+                            type: 'pie',
+                            data: pieData,
+                        });
+                    }
+                })
+                .catch(error => console.error('Error fetching location data:', error));
+            };
+
+            // Fetch initial data for LAST_MONTH
+            fetchLocationData({ timeRange: 'LAST_MONTH' });
+
+            // Event listener for time range selection
+            timeRangeSelect.addEventListener('change', (event) => {
+                const selectedValue = event.target.value;
+
+                if (selectedValue === 'CUSTOM') {
+                    customDateRange.style.display = 'flex';
+                } else {
+                    customDateRange.style.display = 'none';
+                    fetchLocationData({ timeRange: selectedValue });
                 }
-            })
-            .catch(error => console.error('Error fetching data:', error));
+            });
 
-        // Sample data for the pie charts
-        const locationData = {
-            labels: ['Hongkong', 'Dhaka', 'USA', 'Other'],
-            datasets: [{
-                data: [38.6, 22.5, 30.8, 8.1],
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'],
-            }]
-        };
+            // Event listener for custom date range selection
+            document.getElementById('endDate').addEventListener('change', () => {
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
 
-        const deviceData = {
-            labels: ['iPhone SE', 'iPhone 15', 'iPhone X', 'Samsung', 'Xiaomi', 'Other'],
-            datasets: [{
-                data: [10000, 20000, 15000, 30000, 10000, 5000],
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
-            }]
-        };
-
-        const totalUsersData = {
-            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-            datasets: [{
-                label: 'This year',
-                data: [10000, 15000, 20000, 25000, 30000, 35000],
-                borderColor: '#36A2EB',
-                fill: false
-            }, {
-                label: 'Last year',
-                data: [5000, 10000, 15000, 20000, 25000, 30000],
-                borderColor: '#FF6384',
-                fill: false
-            }]
-        };
-
-        // Rendering the charts
-        const ctx1 = document.getElementById('locationChart').getContext('2d');
-        new Chart(ctx1, {
-            type: 'pie',
-            data: locationData
-        });
-
-        const ctx2 = document.getElementById('deviceChart').getContext('2d');
-        new Chart(ctx2, {
-            type: 'bar',
-            data: deviceData
-        });
-
-        const ctx3 = document.getElementById('totalUsersChart').getContext('2d');
-        new Chart(ctx3, {
-            type: 'line',
-            data: totalUsersData
+                if (startDate && endDate) {
+                    fetchLocationData({ timeRange: 'CUSTOM', startDate, endDate });
+                }
+            });
         });
     </script>
-
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
