@@ -23,12 +23,12 @@
             color: #4A4A4A;
             font-size: 1rem;
             padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem;
         }
 
         .sidebar-offcanvas .nav-link.active {
             color: #FFFFFF;
             background-color: #0D6EFD;
-            border-radius: 0.375rem;
         }
 
         .sidebar-offcanvas .nav-link:hover {
@@ -36,29 +36,33 @@
         }
 
         .card-custom {
-            background-color: #E3F5FF;
+            background-color: #FFFFFF;
             color: black;
             border-radius: 0.5rem;
+            padding: 1.25rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             font-size: 1.2rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 1.5rem;
+        }
+
+        .card-custom h5 {
+            font-size: 1rem;
+        }
+
+        .card-custom p {
+            font-size: 1.5rem;
         }
 
         .chart-card {
             background-color: #FFFFFF;
-            padding: 1.5rem;
+            padding: 1rem;
             border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%280, 0, 0, 0.5%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 1rem;
         }
 
         .navbar {
             background-color: #FFFFFF;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            padding: 1rem;
         }
 
         .navbar-brand {
@@ -66,26 +70,17 @@
             color: #4A4A4A;
         }
 
-        #map {
-            height: 400px;
-            width: 100%;
-            border-radius: 0.5rem;
-            margin-top: 1rem;
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
         }
 
-        #customDateRange {
-            display: none;
-            margin-top: 1rem;
-        }
-
-        @media (max-width: 767.98px) {
-            .sidebar-offcanvas {
-                display: none;
-            }
-
-            #offcanvasSidebar {
-                display: block;
-            }
+        .chart-container {
+            position: relative;
+            height: 40vh;
+            margin-top: 2rem;
         }
     </style>
 </head>
@@ -154,40 +149,52 @@
                 </nav>
 
                 <div class="container">
-                    <!-- Time Range Dropdown -->
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="timeRangeSelect">Select Time Range:</label>
-                                <select class="form-select" id="timeRangeSelect">
-                                    <option value="LAST_MONTH" selected>Last Month</option>
-                                    <option value="LAST_WEEK">Last Week</option>
-                                    <option value="CUSTOM">Custom</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Custom Date Range -->
-                    <div id="customDateRange" class="row mt-3">
-                        <div class="col-md-6">
-                            <input type="date" id="startDate" class="form-control" placeholder="Start Date">
-                        </div>
-                        <div class="col-md-6">
-                            <input type="date" id="endDate" class="form-control" placeholder="End Date">
-                        </div>
-                    </div>
-
-                    <!-- Map and Pie Chart -->
                     <div class="row mt-3">
-                        <div class="col-12 mb-3">
-                            <div id="map"></div>
-                        </div>
-                        <div class="col-12">
-                            <div class="chart-card">
-                                <h5>Users by Country</h5>
-                                <canvas id="countryPieChart"></canvas>
+                        <!-- Cards -->
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-custom">
+                                <h5>Total Users</h5>
+                                <p id="totalUsers">0</p>
                             </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-custom">
+                                <h5>Active Users</h5>
+                                <p id="totalActiveUsers">0</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-custom">
+                                <h5>API Requests</h5>
+                                <p id="totalApiCalls">0</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card card-custom">
+                                <h5>Errors</h5>
+                                <p id="totalErrors">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown and Chart -->
+                    <div class="content-header">
+                        <select class="form-select w-auto" id="timeRangeSelect">
+                            <option value="LAST_MONTH" selected>Last Month</option>
+                            <option value="LAST_WEEK">Last Week</option>
+                            <option value="CUSTOM">Custom Range</option>
+                        </select>
+
+                        <div id="customDateRange" class="d-none">
+                            <input type="date" id="startDate" class="form-control d-inline w-auto">
+                            <input type="date" id="endDate" class="form-control d-inline w-auto">
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
+                        <h5>Location Logs by Country</h5>
+                        <div class="chart-container">
+                            <canvas id="locationPieChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -195,105 +202,96 @@
         </div>
     </div>
 
-    <!-- Leaflet.js for Map -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize map
-            const map = L.map('map').setView([22.2783, 114.1701], 12); // Default to Hong Kong coordinates
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                maxZoom: 18
-            }).addTo(map);
+        // Fetch data for cards
+        fetch('https://seekr-analytics.squadhead.workers.dev/analytics/dashboard')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('totalUsers').textContent = data.data.totalUsers;
+                    document.getElementById('totalActiveUsers').textContent = data.data.totalActiveUsers;
+                    document.getElementById('totalApiCalls').textContent = data.data.totalApiCalls;
+                    document.getElementById('totalErrors').textContent = data.data.totalErrors;
+                }
+            })
+            .catch(error => console.error('Error fetching data:', error));
 
-            const timeRangeSelect = document.getElementById('timeRangeSelect');
-            const customDateRange = document.getElementById('customDateRange');
-            const countryPieChartCtx = document.getElementById('countryPieChart').getContext('2d');
-            let countryPieChart;
+        // Initialize Pie Chart
+        const ctx = document.getElementById('locationPieChart').getContext('2d');
+        let pieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0',
+                        '#9966FF'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
 
-            const fetchLocationData = (params) => {
-                fetch('https://seekr-analytics.squadhead.workers.dev/location', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(params),
-                })
+        // Fetch and update pie chart data
+        const updatePieChart = (params) => {
+            fetch('https://seekr-analytics.squadhead.workers.dev/analytics/location', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(params)
+            })
                 .then(response => response.json())
                 .then(data => {
-                    const locations = data.locations;
-
-                    // Clear map
-                    map.eachLayer(layer => {
-                        if (layer instanceof L.Marker) {
-                            map.removeLayer(layer);
-                        }
-                    });
-
-                    // Add markers to map
-                    locations.forEach(location => {
-                        const { latitude, longitude } = location;
-                        L.marker([latitude, longitude]).addTo(map);
-                    });
-
-                    // Prepare data for pie chart
-                    const countryCounts = locations.reduce((acc, location) => {
-                        const { country } = location;
-                        acc[country] = (acc[country] || 0) + 1;
-                        return acc;
-                    }, {});
-
-                    const pieData = {
-                        labels: Object.keys(countryCounts),
-                        datasets: [{
-                            label: 'Users by Country',
-                            data: Object.values(countryCounts),
-                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
-                        }]
-                    };
-
-                    // Update or create the pie chart
-                    if (countryPieChart) {
-                        countryPieChart.data = pieData;
-                        countryPieChart.update();
-                    } else {
-                        countryPieChart = new Chart(countryPieChartCtx, {
-                            type: 'pie',
-                            data: pieData,
-                        });
+                    if (data.success) {
+                        const countries = data.data.countries;
+                        pieChart.data.labels = Object.keys(countries);
+                        pieChart.data.datasets[0].data = Object.values(countries);
+                        pieChart.update();
                     }
                 })
-                .catch(error => console.error('Error fetching location data:', error));
-            };
+                .catch(error => console.error('Error fetching chart data:', error));
+        };
 
-            // Fetch initial data for LAST_MONTH
-            fetchLocationData({ timeRange: 'LAST_MONTH' });
+        // Initial Pie Chart Update
+        updatePieChart({ range: 'LAST_MONTH' });
 
-            // Event listener for time range selection
-            timeRangeSelect.addEventListener('change', (event) => {
-                const selectedValue = event.target.value;
+        // Time Range Select Handler
+        document.getElementById('timeRangeSelect').addEventListener('change', function () {
+            const selectedRange = this.value;
+            const customDateRange = document.getElementById('customDateRange');
 
-                if (selectedValue === 'CUSTOM') {
-                    customDateRange.style.display = 'flex';
-                } else {
-                    customDateRange.style.display = 'none';
-                    fetchLocationData({ timeRange: selectedValue });
-                }
-            });
+            if (selectedRange === 'CUSTOM') {
+                customDateRange.classList.remove('d-none');
+            } else {
+                customDateRange.classList.add('d-none');
+                updatePieChart({ range: selectedRange });
+            }
+        });
 
-            // Event listener for custom date range selection
-            document.getElementById('endDate').addEventListener('change', () => {
-                const startDate = document.getElementById('startDate').value;
-                const endDate = document.getElementById('endDate').value;
+        // Custom Date Range Update
+        document.getElementById('endDate').addEventListener('change', function () {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = this.value;
 
-                if (startDate && endDate) {
-                    fetchLocationData({ timeRange: 'CUSTOM', startDate, endDate });
-                }
-            });
+            if (startDate && endDate) {
+                updatePieChart({
+                    range: 'CUSTOM',
+                    startDate: startDate,
+                    endDate: endDate
+                });
+            }
         });
     </script>
 </body>
