@@ -224,47 +224,44 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Fetch data for cards
-        fetch('https://seekr-analytics.squadhead.workers.dev/analytics/dashboard')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('totalUsers').textContent = data.data.totalUsers;
-                    document.getElementById('totalActiveUsers').textContent = data.data.totalActiveUsers;
-                    document.getElementById('totalApiCalls').textContent = data.data.totalApiCalls;
-                    document.getElementById('totalErrors').textContent = data.data.totalErrors;
-                }
-            })
-            .catch(error => console.error('Error fetching data:', error));
+        // Function to fetch data for cards
+        const updateDashboardData = (timeRange, startDate = null, endDate = null) => {
+            let params;
 
-        // Initialize Pie Chart
-        const ctx = document.getElementById('locationPieChart').getContext('2d');
-        let pieChart = new Chart(ctx, {
-            type: 'pie',
-            data: {
-                labels: [],
-                datasets: [{
-                    data: [],
-                    backgroundColor: [
-                        '#FF6384',
-                        '#36A2EB',
-                        '#FFCE56',
-                        '#4BC0C0',
-                        '#9966FF'
-                    ]
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
+            if (timeRange === 'CUSTOM') {
+                params = {
+                    "lastActivity": "CUSTOM",
+                    "dateRange": {
+                        "from": startDate,
+                        "to": endDate
                     }
-                }
+                };
+            } else {
+                params = {
+                    "lastActivity": timeRange
+                };
             }
-        });
 
-        // Fetch and update pie chart data
+            fetch('https://seekr-analytics.squadhead.workers.dev/analytics/dashboard', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(params)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('totalUsers').textContent = data.data.totalUsers;
+                        document.getElementById('totalActiveUsers').textContent = data.data.totalActiveUsers;
+                        document.getElementById('totalApiCalls').textContent = data.data.totalApiCalls;
+                        document.getElementById('totalErrors').textContent = data.data.totalErrors;
+                    } else {
+                        console.error('Error fetching dashboard data:', data.message);
+                    }
+                })
+                .catch(error => console.error('Error fetching dashboard data:', error));
+        };
+
+        // Function to update the pie chart data
         const updatePieChart = (timeRange, startDate = null, endDate = null) => {
             let params;
 
@@ -282,7 +279,7 @@
                 };
             }
 
-            fetch('https://seekr-analytics.squadhead.workers.dev/analytics/location', {
+            fetch('https://seekr-analytics.squadhead.workers.dev/analytics/locationLogs', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(params)
@@ -290,46 +287,53 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Aggregating the data by country
-                        const countriesData = data.data.reduce((acc, location) => {
-                            const country = location.country || 'Unknown';
-                            acc[country] = (acc[country] || 0) + 1;
-                            return acc;
-                        }, {});
+                        const countries = data.data.map(item => item.country);
+                        const totals = data.data.map(item => item.total);
 
-                        // Updating the pie chart
-                        pieChart.data.labels = Object.keys(countriesData);
-                        pieChart.data.datasets[0].data = Object.values(countriesData);
-                        pieChart.update();
+                        const ctx = document.getElementById('locationPieChart').getContext('2d');
+                        const locationPieChart = new Chart(ctx, {
+                            type: 'pie',
+                            data: {
+                                labels: countries,
+                                datasets: [{
+                                    data: totals,
+                                    backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+                                }]
+                            }
+                        });
+                    } else {
+                        console.error('Error fetching pie chart data:', data.message);
                     }
                 })
-                .catch(error => console.error('Error fetching chart data:', error));
+                .catch(error => console.error('Error fetching pie chart data:', error));
         };
 
-        // Initial Pie Chart Update
-        updatePieChart('LAST_MONTH');
-
-        // Time Range Select Handler
+        // Event listener for the dropdown selection
         document.getElementById('timeRangeSelect').addEventListener('change', function () {
             const selectedRange = this.value;
-            const customDateRange = document.getElementById('customDateRange');
-
             if (selectedRange === 'CUSTOM') {
-                customDateRange.classList.remove('d-none');
+                document.getElementById('customDateRange').classList.remove('d-none');
             } else {
-                customDateRange.classList.add('d-none');
+                document.getElementById('customDateRange').classList.add('d-none');
+                updateDashboardData(selectedRange);
                 updatePieChart(selectedRange);
             }
         });
 
-        // Custom Date Range Update
+        // Event listener for the custom date range input
         document.getElementById('endDate').addEventListener('change', function () {
             const startDate = document.getElementById('startDate').value;
-            const endDate = this.value;
-
+            const endDate = document.getElementById('endDate').value;
             if (startDate && endDate) {
+                updateDashboardData('CUSTOM', startDate, endDate);
                 updatePieChart('CUSTOM', startDate, endDate);
             }
+        });
+
+        // Initial fetch for 'LAST_MONTH' on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            updateDashboardData('LAST_MONTH');
+            updatePieChart('LAST_MONTH');
         });
     </script>
 </body>
