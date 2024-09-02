@@ -261,8 +261,35 @@
                 .catch(error => console.error('Error fetching dashboard data:', error));
         };
 
+      // Initialize Pie Chart
+        const ctx = document.getElementById('locationPieChart').getContext('2d');
+        let pieChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0',
+                        '#9966FF'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    }
+                }
+            }
+        });
+
         // Function to update the pie chart data
-          const updatePieChart = (timeRange, startDate = null, endDate = null) => {
+        const updatePieChart = (timeRange, startDate = null, endDate = null) => {
             let params;
 
             if (timeRange === 'CUSTOM') {
