@@ -199,7 +199,7 @@
             const uid = urlParams.get('uid');
 
             if (uid) {
-                fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${uid}/events`)
+                fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${uid}/sessions`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
@@ -229,7 +229,7 @@
         });
 
         function fetchSessionDetails(sessionId) {
-            fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${sessionId}sessions`)
+            fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/sessions/${sessionId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
