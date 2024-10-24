@@ -229,7 +229,7 @@
         });
 
         function fetchSessionDetails(sessionId) {
-            fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/sessions/${sessionId}`)
+            fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${sessionId}sessions`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
