@@ -156,6 +156,59 @@
                             </div>
                         </div>
                     </div>
+                <!-- Time Range Dropdown -->
+                <div class="mb-3">
+                    <label for="timeRangeDropdown" class="form-label">Select Time Range:</label>
+                    <select class="form-select" id="timeRangeDropdown" onchange="fetchFeatureCounts()">
+                        <option value="LAST_WEEK">Last Week</option>
+                        <option value="LAST_MONTH">Last Month</option>
+                        <option value="CUSTOM">Custom Range</option>
+                    </select>
+
+                    <!-- Custom Date Range Input -->
+                    <div id="customDateRange" class="mt-3" style="display:none;">
+                        <label>From:</label>
+                        <input type="date" id="startDate" class="form-control">
+                        <label>To:</label>
+                        <input type="date" id="endDate" class="form-control">
+                    </div>
+                </div>
+
+                <!-- New Feature Count Table -->
+                <div class="row mt-3">
+                    <div class="col-md-12 mb-3">
+                        <div class="card chart-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Feature Counts</h5>
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Date</th>
+                                            <th scope="col">Feature</th>
+                                            <th scope="col">Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="featureCountsTable">
+                                        <!-- Dynamic feature rows will be inserted here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vertical Bar Chart -->
+                <div class="row mt-3">
+                    <div class="col-md-12 mb-3">
+                        <div class="card chart-card">
+                            <div class="card-body">
+                                <h5 class="card-title">Feature Count Chart</h5>
+                                <canvas id="featureCountChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 </div>
             </div>
         </div>
@@ -194,6 +247,98 @@
 
     <!-- Fetch and display session details -->
     <script>
+        document.getElementById('timeRangeDropdown').addEventListener('change', (e) => {
+            const value = e.target.value;
+            document.getElementById('customDateRange').style.display = value === 'CUSTOM' ? 'block' : 'none';
+        });
+
+        function fetchFeatureCounts() {
+            const timeRange = document.getElementById('timeRangeDropdown').value;
+            let startDate = document.getElementById('startDate').value;
+            let endDate = document.getElementById('endDate').value;
+
+            let params = {};
+            if (timeRange === 'CUSTOM') {
+                params = {
+                    "lastActivity": "CUSTOM",
+                    "dateRange": {
+                        "from": startDate,
+                        "to": endDate
+                    }
+                };
+            } else {
+                params = {
+                    "lastActivity": timeRange
+                };
+            }
+
+            showSpinner();
+
+            const uid = 'user-id'; // Replace with actual UID
+            fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${uid}/feature-count`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(params)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updateFeatureCountTable(data.data);
+                    updateFeatureCountChart(data.data);
+                }
+            })
+            .catch(error => console.error('Error fetching feature counts:', error))
+            .finally(() => hideSpinner());
+        }
+
+        function updateFeatureCountTable(features) {
+            const tableBody = document.getElementById('featureCountsTable');
+            tableBody.innerHTML = ''; // Clear previous data
+
+            features.forEach(entry => {
+                entry.features.forEach(feature => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${new Date(entry.date).toLocaleDateString()}</td>
+                        <td>${feature.feature}</td>
+                        <td>${feature.count}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            });
+        }
+
+        function updateFeatureCountChart(features) {
+            const ctx = document.getElementById('featureCountChart').getContext('2d');
+
+            const labels = features.map(entry => new Date(entry.date).toLocaleDateString());
+            const counts = features.map(entry => entry.features.reduce((acc, feature) => acc + feature.count, 0));
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Feature Count',
+                        data: counts,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+
         document.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const uid = urlParams.get('uid');
