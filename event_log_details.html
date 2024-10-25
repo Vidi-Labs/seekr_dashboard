@@ -439,31 +439,35 @@ function updateFeatureCountTable(features) {
         function updateFeatureCountChart(features) {
             const ctx = document.getElementById('featureCountChart').getContext('2d');
     
-            // Prepare data for the stacked bar chart
+            // Prepare data labels based on unique dates
             const labels = features.map(entry => new Date(entry.date).toLocaleDateString());
     
-            // Extract unique features for each date and consolidate them into a single dataset
+            // Extract unique features
             const featureNames = Array.from(
                 new Set(features.flatMap(entry => entry.features.map(feature => feature.feature)))
             );
     
-            // Calculate the counts for each feature on each date, so each date is a single bar
-            const datasets = featureNames.map((featureName, index) => {
-                return {
-                    label: featureName,
-                    data: features.map(entry => {
-                        const feature = entry.features.find(f => f.feature === featureName);
-                        return feature ? feature.count : 0;
-                    }),
-                    backgroundColor: getColorByIndex(index),
-                    stack: 'Stack 0' // Ensures all features on each date stack into one bar
-                };
+            // Consolidate the feature data per date into a single dataset
+            const dataByDate = labels.map((dateLabel, index) => {
+                const entry = features[index];
+                return featureNames.map(featureName => {
+                    const feature = entry.features.find(f => f.feature === featureName);
+                    return feature ? feature.count : 0;
+                });
             });
     
-            // Destroy previous chart instance if it exists to avoid duplicate rendering
+            // Generate datasets for each feature, stacked within one bar per date
+            const datasets = featureNames.map((featureName, i) => ({
+                label: featureName,
+                data: dataByDate.map(d => d[i]),
+                backgroundColor: getColorByIndex(i),
+                stack: 'stacked' // All features are stacked in the same bar
+            }));
+    
+            // Destroy previous chart instance if it exists
             if (window.featureChart) window.featureChart.destroy();
     
-            // Initialize the new stacked bar chart with 0-100 range on y-axis
+            // Initialize the new stacked bar chart with a fixed 0-100 y-axis range
             window.featureChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
