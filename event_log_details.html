@@ -76,7 +76,6 @@
             border-width: .3rem;
         }
 
-        
     </style>
 </head>
 
@@ -145,7 +144,8 @@
                                                 <th scope="col">Session ID</th>
                                                 <th scope="col">Total Events</th>
                                                 <th scope="col">From</th>
-                                                <th scope="col">To</th>
+                                                <th scope="col">Device</th>
+                                                <th scope="col">Location</th>
                                             </tr>
                                         </thead>
                                         <tbody id="sessionsTable">
@@ -209,14 +209,15 @@
                             data.data.sessions.forEach(session => {
                                 const row = document.createElement('tr');
                                 row.innerHTML = `
-                                    <td>${session.session ?? ''}</td>
+                                    <td>${session.id ?? ''}</td>
                                     <td>${session.totalEvents ?? ''}</td>
-                                    <td>${session.from ? new Date(session.from).toLocaleString() : ''}</td>
-                                    <td>${session.to ? new Date(session.to).toLocaleString() : ''}</td>
+                                    <td>${session.startTime ? new Date(session.startTime).toLocaleString() : ''}</td>
+                                    <td>${session.device?.name ?? ''} (${session.device?.model ?? ''})</td>
+                                    <td>${session.address?.name ?? ''}, ${session.address?.area ?? ''}</td>
                                 `;
                                 row.addEventListener('click', () => {
                                     showSpinner();
-                                    fetchSessionDetails(session.session);
+                                    fetchSessionDetails(session.id);
                                 });
                                 sessionsTable.appendChild(row);
                             });
@@ -239,22 +240,24 @@
                         data.data.events.forEach(event => {
                             const row = document.createElement('tr');
                             row.innerHTML = `
-                                <td>${event?.event?.title ?? ''}</td>
-                                <td>${event?.event?.details ?? ''}</td>
-                                <td>${event?.createdAt ? new Date(event.createdAt).toLocaleString() : ''}</td>
-                                <td>${event?.device?.name ?? ''}</td>
-                                <td>${event?.device?.model ?? ''}</td>
+                                <td>${event.title ?? ''}</td>
+                                <td>${event.details ?? ''}</td>
+                                <td>${event.createdAt ? new Date(event.createdAt).toLocaleString() : ''}</td>
+                                <td>${event.device?.name ?? ''}</td>
+                                <td>${event.device?.model ?? ''}</td>
                             `;
                             sessionEventsTable.appendChild(row);
                         });
 
-                        // Show the modal and hide the spinner
-                        const sessionDetailsModal = new bootstrap.Modal(document.getElementById('sessionDetailsModal'));
-                        sessionDetailsModal.show();
+                        hideSpinner();
+                        const modal = new bootstrap.Modal(document.getElementById('sessionDetailsModal'));
+                        modal.show();
                     }
                 })
-                .catch(error => console.error('Error fetching session details:', error))
-                .finally(() => hideSpinner());
+                .catch(error => {
+                    console.error('Error fetching session events:', error);
+                    hideSpinner();
+                });
         }
 
         function showSpinner() {
@@ -266,7 +269,6 @@
         }
     </script>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
