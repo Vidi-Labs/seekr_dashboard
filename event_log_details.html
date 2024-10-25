@@ -438,36 +438,39 @@ function updateFeatureCountTable(features) {
     <script>
         function updateFeatureCountChart(features) {
             const ctx = document.getElementById('featureCountChart').getContext('2d');
+            
+            // Step 1: Consolidate features by date
+            const consolidatedData = {};
+            features.forEach(entry => {
+                const dateKey = new Date(entry.date).toLocaleDateString();
+                if (!consolidatedData[dateKey]) {
+                    consolidatedData[dateKey] = {};
+                }
+                entry.features.forEach(feature => {
+                    if (!consolidatedData[dateKey][feature.feature]) {
+                        consolidatedData[dateKey][feature.feature] = 0;
+                    }
+                    consolidatedData[dateKey][feature.feature] += feature.count;
+                });
+            });
     
-            // Prepare data labels based on unique dates
-            const labels = features.map(entry => new Date(entry.date).toLocaleDateString());
-    
-            // Extract unique features
+            // Step 2: Prepare labels and dataset data based on consolidated data
+            const labels = Object.keys(consolidatedData);
             const featureNames = Array.from(
                 new Set(features.flatMap(entry => entry.features.map(feature => feature.feature)))
             );
     
-            // Consolidate the feature data per date into a single dataset
-            const dataByDate = labels.map((dateLabel, index) => {
-                const entry = features[index];
-                return featureNames.map(featureName => {
-                    const feature = entry.features.find(f => f.feature === featureName);
-                    return feature ? feature.count : 0;
-                });
-            });
-    
-            // Generate datasets for each feature, stacked within one bar per date
             const datasets = featureNames.map((featureName, i) => ({
                 label: featureName,
-                data: dataByDate.map(d => d[i]),
+                data: labels.map(dateLabel => consolidatedData[dateLabel][featureName] || 0),
                 backgroundColor: getColorByIndex(i),
-                stack: 'stacked' // All features are stacked in the same bar
+                stack: 'stacked'  // All features are stacked in the same bar for each date
             }));
     
-            // Destroy previous chart instance if it exists
+            // Step 3: Destroy previous chart instance if it exists
             if (window.featureChart) window.featureChart.destroy();
     
-            // Initialize the new stacked bar chart with a fixed 0-100 y-axis range
+            // Step 4: Initialize the new stacked bar chart with a fixed 0-100 y-axis range
             window.featureChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
