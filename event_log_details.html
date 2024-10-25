@@ -223,9 +223,13 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
+                    <!-- Loading Spinner -->
                     <div class="spinner-border text-primary" role="status" id="loadingSpinner">
                         <span class="visually-hidden">Loading...</span>
                     </div>
+                
+                    <!-- Session Events Table -->
+                    <h6>Session Events</h6>
                     <table class="table table-striped mt-3">
                         <thead>
                             <tr>
@@ -240,6 +244,20 @@
                             <!-- Dynamic session event rows will be inserted here -->
                         </tbody>
                     </table>
+                
+                    <!-- New Feature Details Table -->
+                    <h6>Feature Details</h6>
+                    <table class="table table-striped mt-3">
+                        <thead>
+                            <tr>
+                                <th scope="col">Feature</th>
+                                <th scope="col">Created At</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sessionFeaturesTable">
+                            <!-- Dynamic feature rows will be inserted here -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -251,33 +269,7 @@
             const value = e.target.value;
             document.getElementById('customDateRange').style.display = value === 'CUSTOM' ? 'block' : 'none';
         });
-//         function updateFeatureCountChart(features) {
-//     const ctx = document.getElementById('featureCountChart').getContext('2d');
 
-//     const labels = features.map(entry => new Date(entry.date).toLocaleDateString());
-//     const counts = features.map(entry => entry.features.reduce((acc, feature) => acc + feature.count, 0));
-
-//     new Chart(ctx, {
-//         type: 'bar',
-//         data: {
-//             labels: labels,
-//             datasets: [{
-//                 label: 'Feature Count',
-//                 data: counts,
-//                 backgroundColor: 'rgba(54, 162, 235, 0.2)',
-//                 borderColor: 'rgba(54, 162, 235, 1)',
-//                 borderWidth: 1
-//             }]
-//         },
-//         options: {
-//             scales: {
-//                 y: {
-//                     beginAtZero: true
-//                 }
-//             }
-//         }
-//     });
-// }
 
         function fetchFeatureCounts() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -338,23 +330,6 @@
                 });
             });
         }
-
-// function updateFeatureCountTable(features) {
-//     const tableBody = document.getElementById('featureCountsTable');
-//     tableBody.innerHTML = ''; // Clear previous data
-
-//     features.forEach(entry => {
-//         entry.features.forEach(feature => {
-//             const row = document.createElement('tr');
-//             row.innerHTML = `
-//                 <td>${new Date(entry.date).toLocaleDateString()}</td>
-//                 <td>${feature.feature}</td>
-//                 <td>${feature.count}</td>
-//             `;
-//             tableBody.appendChild(row);
-//         });
-//     });
-// }
 
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -511,6 +486,64 @@
             ];
             return colors[index % colors.length];
         }
+
+        function fetchSessionDetails(sessionId) {
+    // Fetch session events
+    fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/sessions/${sessionId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const sessionEventsTable = document.getElementById('sessionEventsTable');
+                sessionEventsTable.innerHTML = ''; // Clear previous data
+
+                data.data.events.forEach(event => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${event.title ?? ''}</td>
+                        <td>${event.details ?? ''}</td>
+                        <td>${event.createdAt ? new Date(event.createdAt).toLocaleString() : ''}</td>
+                        <td>${event.device?.name ?? ''}</td>
+                        <td>${event.device?.model ?? ''}</td>
+                    `;
+                    sessionEventsTable.appendChild(row);
+                });
+
+                // Fetch session features after session events are loaded
+                fetchSessionFeatures(sessionId);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching session events:', error);
+            hideSpinner();
+        });
+}
+
+function fetchSessionFeatures(sessionId) {
+    fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/sessions/${sessionId}/features`)
+        .then(response => response.json())
+        .then(data => {
+            const sessionFeaturesTable = document.getElementById('sessionFeaturesTable');
+            sessionFeaturesTable.innerHTML = ''; // Clear previous data
+
+            if (data.success) {
+                data.data.features.forEach(feature => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${feature.feature}</td>
+                        <td>${new Date(feature.createdAt).toLocaleString()}</td>
+                    `;
+                    sessionFeaturesTable.appendChild(row);
+                });
+            }
+            hideSpinner();
+        })
+        .catch(error => {
+            console.error('Error fetching session features:', error);
+            hideSpinner();
+        });
+}
+
+
     </script>
     
     
