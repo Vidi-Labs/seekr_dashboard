@@ -274,7 +274,7 @@
 
             showSpinner();
 
-            const uid = 'user-id'; // Replace with actual UID
+            const uid = urlParams.get('uid'); // Replace with actual UID
             fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${uid}/feature-count`, {
                 method: 'POST',
                 headers: {
