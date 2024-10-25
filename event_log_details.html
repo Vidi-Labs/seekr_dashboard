@@ -251,6 +251,33 @@
             const value = e.target.value;
             document.getElementById('customDateRange').style.display = value === 'CUSTOM' ? 'block' : 'none';
         });
+        function updateFeatureCountChart(features) {
+    const ctx = document.getElementById('featureCountChart').getContext('2d');
+
+    const labels = features.map(entry => new Date(entry.date).toLocaleDateString());
+    const counts = features.map(entry => entry.features.reduce((acc, feature) => acc + feature.count, 0));
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Feature Count',
+                data: counts,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
 
         function fetchFeatureCounts() {
             const timeRange = document.getElementById('timeRangeDropdown').value;
@@ -310,33 +337,22 @@
             });
         }
 
-        function updateFeatureCountChart(features) {
-            const ctx = document.getElementById('featureCountChart').getContext('2d');
+function updateFeatureCountTable(features) {
+    const tableBody = document.getElementById('featureCountsTable');
+    tableBody.innerHTML = ''; // Clear previous data
 
-            const labels = features.map(entry => new Date(entry.date).toLocaleDateString());
-            const counts = features.map(entry => entry.features.reduce((acc, feature) => acc + feature.count, 0));
-
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: 'Feature Count',
-                        data: counts,
-                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
-                    }
-                }
-            });
-        }
+    features.forEach(entry => {
+        entry.features.forEach(feature => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${new Date(entry.date).toLocaleDateString()}</td>
+                <td>${feature.feature}</td>
+                <td>${feature.count}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    });
+}
 
 
         document.addEventListener('DOMContentLoaded', () => {
