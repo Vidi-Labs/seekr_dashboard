@@ -442,21 +442,21 @@ function updateFeatureCountTable(features) {
             // Prepare data for the stacked bar chart
             const labels = features.map(entry => new Date(entry.date).toLocaleDateString());
     
-            // Extract unique features to create individual datasets
+            // Extract unique features for each date and consolidate them into a single dataset
             const featureNames = Array.from(
                 new Set(features.flatMap(entry => entry.features.map(feature => feature.feature)))
             );
     
-            // Construct datasets for each unique feature
-            const datasets = featureNames.map(featureName => {
+            // Calculate the counts for each feature on each date, so each date is a single bar
+            const datasets = featureNames.map((featureName, index) => {
                 return {
                     label: featureName,
                     data: features.map(entry => {
                         const feature = entry.features.find(f => f.feature === featureName);
                         return feature ? feature.count : 0;
                     }),
-                    backgroundColor: getRandomColor(),
-                    stack: 'Stack 0'
+                    backgroundColor: getColorByIndex(index),
+                    stack: 'Stack 0' // Ensures all features on each date stack into one bar
                 };
             });
     
@@ -491,14 +491,21 @@ function updateFeatureCountTable(features) {
             });
         }
     
-        // Helper function to generate a random color for each feature
-        function getRandomColor() {
-            const r = Math.floor(Math.random() * 255);
-            const g = Math.floor(Math.random() * 255);
-            const b = Math.floor(Math.random() * 255);
-            return `rgba(${r}, ${g}, ${b}, 0.6)`;
+        // Helper function to generate colors based on index
+        function getColorByIndex(index) {
+            const colors = [
+                'rgba(255, 99, 132, 0.6)', // Color for feature 1
+                'rgba(54, 162, 235, 0.6)', // Color for feature 2
+                'rgba(255, 206, 86, 0.6)', // Color for feature 3
+                'rgba(75, 192, 192, 0.6)', // Color for feature 4
+                'rgba(153, 102, 255, 0.6)', // Color for feature 5
+                'rgba(255, 159, 64, 0.6)', // Color for feature 6
+                // Add more colors as needed
+            ];
+            return colors[index % colors.length];
         }
     </script>
+    
     
 
 </body>
