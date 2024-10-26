@@ -355,8 +355,7 @@
                                 `;
                                 row.addEventListener('click', () => {
                                     showSpinner();
-                                    // fetchSessionDetails(session.id);
-                                    fetchSessionFeatures(session.id);
+                                    fetchSessionDetails(session.id);
                                 });
                                 sessionsTable.appendChild(row);
                             });
@@ -388,9 +387,11 @@
                             sessionEventsTable.appendChild(row);
                         });
 
-                        hideSpinner();
-                        const modal = new bootstrap.Modal(document.getElementById('sessionDetailsModal'));
-                        modal.show();
+                        // hideSpinner();
+                        // const modal = new bootstrap.Modal(document.getElementById('sessionDetailsModal'));
+                        // modal.show();
+                        fetchSessionFeatures(sessionId);
+
                     }
                 })
                 .catch(error => {
