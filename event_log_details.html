@@ -355,7 +355,8 @@
                                 `;
                                 row.addEventListener('click', () => {
                                     showSpinner();
-                                    fetchSessionDetails(session.id);
+                                    // fetchSessionDetails(session.id);
+                                    fetchSessionFeatures(session.id);
                                 });
                                 sessionsTable.appendChild(row);
                             });
@@ -536,6 +537,8 @@ function fetchSessionFeatures(sessionId) {
                 });
             }
             hideSpinner();
+            const modal = new bootstrap.Modal(document.getElementById('sessionDetailsModal'));
+            modal.show();
         })
         .catch(error => {
             console.error('Error fetching session features:', error);
