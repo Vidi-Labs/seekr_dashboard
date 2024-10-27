@@ -249,11 +249,19 @@
                     </div>
 
                     <div class="chart-card">
+                        <h5>User Count by Date</h5>
+                        <div class="chart-container">
+                            <canvas id="userCountLineChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card">
                         <h5>Location Logs by Country</h5>
                         <div class="chart-container">
                             <canvas id="locationPieChart"></canvas>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -320,6 +328,22 @@
                 .catch(error => console.error('Error fetching chart data:', error));
         }
 
+        function updateDailyActiveUsersChart(timeRange, startDate = null, endDate = null) {
+            let params = buildParams(timeRange, startDate, endDate);
+            fetchData('https://seekr-analytics.squadhead.workers.dev/analytics/daily-active-users', params)
+                .then(data => {
+                    if (data.success) {
+                        const dates = data.data.map(entry => entry.date);
+                        const usersCounts = data.data.map(entry => entry.users);
+
+                        dailyActiveUsersChart.data.labels = dates;
+                        dailyActiveUsersChart.data.datasets[0].data = usersCounts;
+                        dailyActiveUsersChart.update();
+                    }
+                })
+                .catch(error => console.error('Error fetching daily active users data:', error));
+        }
+
         function buildParams(timeRange, startDate, endDate) {
             return timeRange === 'CUSTOM' ? {
                 "lastActivity": "CUSTOM",
@@ -332,6 +356,7 @@
             updateDashboardData(timeRange);
             updateFeatureWiseData(timeRange);
             updatePieChart(timeRange);
+            updateDailyActiveUsersChart(timeRange);
 
             setTimeout(pollDashboardData, POLLING_INTERVAL);
         }
@@ -351,15 +376,24 @@
                 updateDashboardData('CUSTOM', startDate, endDate);
                 updateFeatureWiseData('CUSTOM', startDate, endDate);
                 updatePieChart('CUSTOM', startDate, endDate);
+                updateDailyActiveUsersChart('CUSTOM', startDate, endDate);
             }
         });
 
         // Initialize Pie Chart
-        const ctx = document.getElementById('locationPieChart').getContext('2d');
-        let pieChart = new Chart(ctx, {
+        const ctxPie = document.getElementById('locationPieChart').getContext('2d');
+        let pieChart = new Chart(ctxPie, {
             type: 'pie',
             data: { labels: [], datasets: [{ data: [], backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'] }] },
             options: { responsive: true, plugins: { legend: { position: 'top' } } }
+        });
+
+        // Initialize Daily Active Users Line Chart
+        const ctxLine = document.getElementById('dailyActiveUsersChart').getContext('2d');
+        let dailyActiveUsersChart = new Chart(ctxLine, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: 'Daily Active Users', data: [], borderColor: '#0D6EFD', tension: 0.3 }] },
+            options: { responsive: true, plugins: { legend: { display: true } } }
         });
 
         // Start polling data when the page loads
