@@ -112,18 +112,28 @@
             }
 
             function fetchFeatureCounts(userId, timeRange, startDate = null, endDate = null) {
-                let url = `${apiUrl}/${userId}/features?range=${timeRange}`;
+                const requestBody = {
+                    userId,
+                    range: timeRange,
+                };
                 if (timeRange === 'CUSTOM' && startDate && endDate) {
-                    url += `&start=${startDate}&end=${endDate}`;
+                    requestBody.startDate = startDate;
+                    requestBody.endDate = endDate;
                 }
 
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        const features = data.features || [];
-                        updateFeatureCountTable(features);
-                    })
-                    .catch(error => console.error('Error fetching feature counts:', error));
+                fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestBody),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const features = data.features || [];
+                    updateFeatureCountTable(features);
+                })
+                .catch(error => console.error('Error fetching feature counts:', error));
             }
 
             function updateFeatureCountTable(features) {
