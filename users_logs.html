@@ -237,10 +237,16 @@
                 if (target) {
                     const userId = target.dataset.userId;
                     if (userId) {
-                        fetchUserDetails(userId);
+                        // fetchUserDetails(userId);
+                        redirectToUserDetails(userId);
+                        
                     }
                 }
             });
+
+            function redirectToUserDetails(userId) {
+                window.location.href = `/user-details.html?userId=${userId}`;
+            }
 
             // Fetch and display user details
             function fetchUserDetails(userId) {
