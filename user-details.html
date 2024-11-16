@@ -3,233 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Details</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <title>User Analytics</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            display: flex;
-        }
-        #sideNav {
-            width: 250px;
-            background-color: #f8f9fa;
-            height: 100vh;
-            position: fixed;
-            top: 0;
-            left: 0;
-            padding-top: 20px;
-            border-right: 1px solid #dee2e6;
-        }
-        #content {
-            margin-left: 250px;
-            padding: 20px;
-            width: 100%;
-        }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-    <!-- Side Navigation -->
-    <div id="sideNav">
-        <h5 class="text-center">Analytics Dashboard</h5>
-        <ul class="nav flex-column">
-            <li class="nav-item">
-                <a class="nav-link" href="/">Home</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="#">User Details</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/settings">Settings</a>
-            </li>
-        </ul>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+       <!-- Sidebar -->
+       <div class="col-auto col-md-3 col-lg-2 px-sm-2 px-0 bg-white sidebar-offcanvas d-none d-md-block">
+        <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2">
+            <h4>Seekr</h4>
+            <ul class="nav nav-pills flex-column mb-auto w-100">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Overview</a>
+                </li>
+                <li>
+                    <a href="users_logs.html" class="nav-link active">Users Logs</a>
+                </li>
+                <li>
+                    <a href="active_users.html" class="nav-link">Active Users Logs</a>
+                </li>
+                <li>
+                    <a href="location_logs.html" class="nav-link">Location Logs</a>
+                </li>
+                <li>
+                    <a href="event_logs.html" class="nav-link">Event Logs</a>
+                </li>
+                <li>
+                    <a href="api_logs.html" class="nav-link">Api Logs</a>
+                </li>
+            </ul>
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <div id="content">
-        <h4>User Details</h4>
-
-        <!-- Feature Analytics Section -->
-        <div>
-            <label for="timeRangeDropdown" class="form-label">Select Time Range:</label>
-            <select class="form-select mb-3" id="timeRangeDropdown" onchange="fetchFeatureCounts()">
-                <option value="LAST_WEEK">Last Week</option>
-                <option value="LAST_MONTH">Last Month</option>
-                <option value="CUSTOM">Custom Range</option>
-            </select>
-            <div id="customDateRange" style="display:none;">
-                <label>From:</label>
-                <input type="date" id="startDate" class="form-control mb-2">
-                <label>To:</label>
-                <input type="date" id="endDate" class="form-control mb-2">
-            </div>
-            <canvas id="featureCountChart" class="mb-4"></canvas>
+    <!-- Offcanvas Sidebar for Mobile -->
+    <div class="offcanvas offcanvas-start sidebar-offcanvas" tabindex="-1" id="offcanvasSidebar">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Seekr</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
+        <div class="offcanvas-body">
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Overview</a>
+                </li>
+                <li>
+                    <a href="users_logs.html" class="nav-link active">Users Logs</a>
+                </li>
+                <li>
+                    <a href="api_logs.html" class="nav-link">API Logs</a>
+                </li>
+                <li>
+                    <a href="location_logs.html" class="nav-link">Location Logs</a>
+                </li>
+                <li>
+                    <a href="event_logs.html" class="nav-link">Event Logs</a>
+                </li>
+                <li>
+                    <a href="api_logs.html" class="nav-link">Api Logs</a>
+                </li>
+            </ul>
+        </div>
+    </div>
 
-        <!-- User Details Button -->
-        <button class="btn btn-primary" onclick="fetchUserDetails(userId)">View User Details</button>
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- User Details Section -->
+                <div id="userDetailsSection" class="mb-4">
+                    <h4>User Details</h4>
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th>User ID</th>
+                                <td id="userId">Loading...</td>
+                            </tr>
+                            <tr>
+                                <th>Name</th>
+                                <td id="userName">Loading...</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td id="userEmail">Loading...</td>
+                            </tr>
+                            <tr>
+                                <th>Phone Number</th>
+                                <td id="userPhoneNumber">Loading...</td>
+                            </tr>
+                            <tr>
+                                <th>Is Anonymous</th>
+                                <td id="userIsAnonymous">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
 
-        <!-- User Details Modal -->
-        <div class="modal fade" id="userDetailsModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">User Details</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div id="spinner" class="d-flex justify-content-center mb-4">
-                            <div class="spinner-border" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
-                        <div id="userDetailsContent" class="d-none">
-                            <h6>User Information</h6>
-                            <table class="table table-striped">
-                                <tr><th>User ID:</th><td id="userId"></td></tr>
-                                <tr><th>Name:</th><td id="userName"></td></tr>
-                                <tr><th>Email:</th><td id="userEmail"></td></tr>
-                                <tr><th>Phone:</th><td id="userPhoneNumber"></td></tr>
-                                <tr><th>Anonymous:</th><td id="userIsAnonymous"></td></tr>
-                            </table>
-                            <h6>Device Information</h6>
-                            <table class="table table-striped">
-                                <tr><th>Device Name:</th><td id="deviceName"></td></tr>
-                                <tr><th>Model:</th><td id="deviceModel"></td></tr>
-                                <tr><th>System Name:</th><td id="systemName"></td></tr>
-                                <tr><th>System Version:</th><td id="systemVersion"></td></tr>
-                            </table>
-                            <h6>Usage Time</h6>
-                            <table class="table table-striped">
-                                <tr><th>From:</th><td id="usageFrom"></td></tr>
-                                <tr><th>To:</th><td id="usageTo"></td></tr>
-                            </table>
-                            <h6>Location</h6>
-                            <table class="table table-striped">
-                                <tr><th>Latitude:</th><td id="locationLat"></td></tr>
-                                <tr><th>Longitude:</th><td id="locationLon"></td></tr>
-                            </table>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <!-- Dropdown for Time Range -->
+                <div class="mb-3">
+                    <label for="timeRangeDropdown" class="form-label">Select Time Range:</label>
+                    <select class="form-select" id="timeRangeDropdown" onchange="fetchFeatureCounts()">
+                        <option value="LAST_WEEK">Last Week</option>
+                        <option value="LAST_MONTH">Last Month</option>
+                        <option value="CUSTOM">Custom Range</option>
+                    </select>
+
+                    <!-- Custom Date Range Input -->
+                    <div id="customDateRange" class="mt-3" style="display:none;">
+                        <label>From:</label>
+                        <input type="date" id="startDate" class="form-control">
+                        <label>To:</label>
+                        <input type="date" id="endDate" class="form-control">
                     </div>
                 </div>
-            </div>
+
+                <!-- Feature Count Chart -->
+                <canvas id="featureCountChart" width="400" height="200"></canvas>
+
+                <!-- Feature Details Table -->
+                <h6>Feature Details</h6>
+                <table class="table table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th scope="col">Feature</th>
+                            <th scope="col">Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessionFeaturesTable">
+                        <!-- Dynamic feature rows will be inserted here -->
+                    </tbody>
+                </table>
+            </main>
         </div>
     </div>
 
     <script>
-        // Extract userId from query parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const userId = urlParams.get('userId');
+        let currentUserId = null; // To store the user ID for API calls.
 
-        if (!userId) {
-            alert('User ID not found!');
-            window.location.href = '/';
+        function fetchUserDetails(userId) {
+            currentUserId = userId; // Store the user ID globally.
+            fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const user = data.data.user;
+                        document.getElementById('userId').textContent = user.uid ?? '';
+                        document.getElementById('userName').textContent = user.name ?? 'N/A';
+                        document.getElementById('userEmail').textContent = user.email ?? 'N/A';
+                        document.getElementById('userPhoneNumber').textContent = user.phoneNumber ?? 'N/A';
+                        document.getElementById('userIsAnonymous').textContent = user.isAnonymous ? 'Yes' : 'No';
+                    }
+                })
+                .catch(error => console.error('Error fetching user details:', error));
         }
 
-        document.getElementById('timeRangeDropdown').addEventListener('change', () => {
-            const selectedValue = document.getElementById('timeRangeDropdown').value;
-            document.getElementById('customDateRange').style.display = selectedValue === 'CUSTOM' ? 'block' : 'none';
-        });
+        function fetchFeatureCounts() {
+            const timeRange = document.getElementById('timeRangeDropdown').value;
+            const customDateRange = document.getElementById('customDateRange');
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
 
-        // Fetch feature counts
-        async function fetchFeatureCounts() {
-            const dropdown = document.getElementById('timeRangeDropdown');
-            const selectedValue = dropdown.value;
-
-            const payload = { lastActivity: selectedValue };
-            if (selectedValue === 'CUSTOM') {
-                payload.dateRange = {
-                    from: document.getElementById('startDate').value,
-                    to: document.getElementById('endDate').value,
-                };
+            if (timeRange === 'CUSTOM') {
+                customDateRange.style.display = 'block';
+                if (!startDate || !endDate) return; // Wait until dates are selected.
+            } else {
+                customDateRange.style.display = 'none';
             }
 
-            try {
-                const response = await fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}/features`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload),
-                });
-                const data = await response.json();
-                if (data.success) {
-                    updateFeatureCountChart(data.data.features);
-                } else {
-                    console.error('Failed to fetch feature counts:', data.message);
-                }
-            } catch (error) {
-                console.error('Error fetching feature counts:', error);
-            }
+            const params = {
+                lastActivity: timeRange,
+                dateRange: timeRange === 'CUSTOM' ? { from: startDate, to: endDate } : null
+            };
+
+            fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${currentUserId}/features`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(params)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const features = data.data.features;
+                        updateFeatureCountChart(features);
+                        populateFeatureTable(features);
+                    }
+                })
+                .catch(error => console.error('Error fetching feature counts:', error));
         }
 
         function updateFeatureCountChart(features) {
             const ctx = document.getElementById('featureCountChart').getContext('2d');
-            const labels = [...new Set(features.map(f => new Date(f.createdAt).toLocaleDateString()))];
-            const dataset = features.map(f => ({ x: new Date(f.createdAt).toLocaleDateString(), y: 1 }));
+            const consolidatedData = {};
+
+            features.forEach(entry => {
+                const dateKey = new Date(entry.createdAt).toLocaleDateString();
+                if (!consolidatedData[dateKey]) {
+                    consolidatedData[dateKey] = {};
+                }
+                if (!consolidatedData[dateKey][entry.feature]) {
+                    consolidatedData[dateKey][entry.feature] = 0;
+                }
+                consolidatedData[dateKey][entry.feature] += 1;
+            });
+
+            const labels = Object.keys(consolidatedData);
+            const featureNames = Array.from(new Set(features.map(feature => feature.feature)));
+            const datasets = featureNames.map((featureName, i) => ({
+                label: featureName,
+                data: labels.map(date => consolidatedData[date][featureName] || 0),
+                backgroundColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.7)`,
+                stack: 'stacked'
+            }));
 
             if (window.featureChart) window.featureChart.destroy();
 
             window.featureChart = new Chart(ctx, {
                 type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [
-                        {
-                            label: 'Features',
-                            data: dataset.map(d => d.y),
-                            backgroundColor: 'rgba(75, 192, 192, 0.5)',
-                        },
-                    ],
-                },
+                data: { labels, datasets },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'top' } },
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true, max: 100 }
+                    }
+                }
             });
         }
 
-        // Fetch user details
-        async function fetchUserDetails(userId) {
-            const modal = new bootstrap.Modal(document.getElementById('userDetailsModal'));
-            document.getElementById('spinner').classList.remove('d-none');
-            document.getElementById('userDetailsContent').classList.add('d-none');
-            modal.show();
-
-            try {
-                const response = await fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}`);
-                const data = await response.json();
-                if (data.success) {
-                    const { user, device, ussageTime: usageTime, location } = data.data;
-
-                    document.getElementById('userId').textContent = user.uid ?? '';
-                    document.getElementById('userName').textContent = user.name ?? 'N/A';
-                    document.getElementById('userEmail').textContent = user.email ?? 'N/A';
-                    document.getElementById('userPhoneNumber').textContent = user.phoneNumber ?? 'N/A';
-                    document.getElementById('userIsAnonymous').textContent = user.isAnonymous ? 'Yes' : 'No';
-
-                    document.getElementById('deviceName').textContent = device.name ?? 'N/A';
-                    document.getElementById('deviceModel').textContent = device.model ?? 'N/A';
-                    document.getElementById('systemName').textContent = device.systemName ?? 'N/A';
-                    document.getElementById('systemVersion').textContent = device.systemVersion ?? 'N/A';
-
-                    document.getElementById('usageFrom').textContent = usageTime.from ? new Date(usageTime.from).toLocaleString() : 'N/A';
-                    document.getElementById('usageTo').textContent = usageTime.to ? new Date(usageTime.to).toLocaleString() : 'N/A';
-
-                    document.getElementById('locationLat').textContent = location.lat ?? 'N/A';
-                    document.getElementById('locationLon').textContent = location.lon ?? 'N/A';
-
-                    document.getElementById('spinner').classList.add('d-none');
-                    document.getElementById('userDetailsContent').classList.remove('d-none');
-                } else {
-                    console.error('Failed to fetch user details:', data.message);
-                    modal.hide();
-                }
-            } catch (error) {
-                console.error('Error fetching user details:', error);
-                modal.hide();
-            }
+        function populateFeatureTable(features) {
+            const tableBody = document.getElementById('sessionFeaturesTable');
+            tableBody.innerHTML = '';
+            features.forEach(feature => {
+                const row = `<tr>
+                    <td>${feature.feature}</td>
+                    <td>${new Date(feature.createdAt).toLocaleString()}</td>
+                </tr>`;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
         }
 
-        // Fetch initial data
-        fetchFeatureCounts();
+        // Assume userId is passed as a query parameter to this page.
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+        if (userId) fetchUserDetails(userId);
     </script>
 </body>
 </html>
