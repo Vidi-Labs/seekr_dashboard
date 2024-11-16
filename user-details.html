@@ -198,7 +198,7 @@
     // Step 1: Consolidate features by date
     const consolidatedData = {};
     features.forEach(entry => {
-        const dateKey = new Date(entry.createdAt).toLocaleDateString();
+        const dateKey = new Date(entry.createdAt).toLocaleDateString(); // Format date as readable string
         if (!consolidatedData[dateKey]) {
             consolidatedData[dateKey] = {};
         }
@@ -209,10 +209,10 @@
     });
 
     // Step 2: Prepare labels and datasets for the chart
-    const labels = Object.keys(consolidatedData); // Array of unique dates
+    const labels = Object.keys(consolidatedData); // Unique dates as labels
     const featureNames = Array.from(
         new Set(features.map(entry => entry.feature))
-    ); // Array of unique feature names
+    ); // Unique feature names
 
     const datasets = featureNames.map((featureName, index) => ({
         label: featureName,
@@ -220,6 +220,9 @@
         backgroundColor: getColorByIndex(index),
         stack: 'stacked' // Ensures stacking by date
     }));
+
+    console.log("Chart Labels:", labels); // Debugging labels
+    console.log("Chart Datasets:", datasets); // Debugging datasets
 
     // Step 3: Destroy previous chart instance if it exists
     if (window.featureChart) {
@@ -237,8 +240,8 @@
             responsive: true,
             plugins: {
                 legend: {
-                    position: 'top'
-                }
+                    position: 'top',
+                },
             },
             scales: {
                 x: {
@@ -247,12 +250,13 @@
                 y: {
                     stacked: true,
                     beginAtZero: true,
-                    max: Math.max(100, ...datasets.flatMap(dataset => dataset.data)) // Ensure y-axis range covers data
+                    max: 100 // Ensure y-axis has sufficient range
                 }
             }
         }
     });
 }
+
 
 // Helper function to generate colors for datasets
 function getColorByIndex(index) {
