@@ -193,44 +193,79 @@
         }
 
         function updateFeatureCountChart(features) {
-            const ctx = document.getElementById('featureCountChart').getContext('2d');
-            const consolidatedData = {};
+    const ctx = document.getElementById('featureCountChart').getContext('2d');
 
-            features.forEach(entry => {
-                const dateKey = new Date(entry.createdAt).toLocaleDateString();
-                if (!consolidatedData[dateKey]) {
-                    consolidatedData[dateKey] = {};
-                }
-                if (!consolidatedData[dateKey][entry.feature]) {
-                    consolidatedData[dateKey][entry.feature] = 0;
-                }
-                consolidatedData[dateKey][entry.feature] += 1;
-            });
-
-            const labels = Object.keys(consolidatedData);
-            const featureNames = Array.from(new Set(features.map(feature => feature.feature)));
-            const datasets = featureNames.map((featureName, i) => ({
-                label: featureName,
-                data: labels.map(date => consolidatedData[date][featureName] || 0),
-                backgroundColor: `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 0.7)`,
-                stack: 'stacked'
-            }));
-
-            if (window.featureChart) window.featureChart.destroy();
-
-            window.featureChart = new Chart(ctx, {
-                type: 'bar',
-                data: { labels, datasets },
-                options: {
-                    responsive: true,
-                    plugins: { legend: { position: 'top' } },
-                    scales: {
-                        x: { stacked: true },
-                        y: { stacked: true, beginAtZero: true, max: 100 }
-                    }
-                }
-            });
+    // Step 1: Consolidate features by date
+    const consolidatedData = {};
+    features.forEach(entry => {
+        const dateKey = new Date(entry.createdAt).toLocaleDateString();
+        if (!consolidatedData[dateKey]) {
+            consolidatedData[dateKey] = {};
         }
+        if (!consolidatedData[dateKey][entry.feature]) {
+            consolidatedData[dateKey][entry.feature] = 0;
+        }
+        consolidatedData[dateKey][entry.feature] += 1;
+    });
+
+    // Step 2: Prepare labels and datasets for the chart
+    const labels = Object.keys(consolidatedData); // Array of unique dates
+    const featureNames = Array.from(
+        new Set(features.map(entry => entry.feature))
+    ); // Array of unique feature names
+
+    const datasets = featureNames.map((featureName, index) => ({
+        label: featureName,
+        data: labels.map(dateLabel => consolidatedData[dateLabel][featureName] || 0),
+        backgroundColor: getColorByIndex(index),
+        stack: 'stacked' // Ensures stacking by date
+    }));
+
+    // Step 3: Destroy previous chart instance if it exists
+    if (window.featureChart) {
+        window.featureChart.destroy();
+    }
+
+    // Step 4: Initialize the new stacked bar chart
+    window.featureChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top'
+                }
+            },
+            scales: {
+                x: {
+                    stacked: true
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    max: Math.max(100, ...datasets.flatMap(dataset => dataset.data)) // Ensure y-axis range covers data
+                }
+            }
+        }
+    });
+}
+
+// Helper function to generate colors for datasets
+function getColorByIndex(index) {
+    const colors = [
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(54, 162, 235, 0.7)',
+        'rgba(255, 206, 86, 0.7)',
+        'rgba(75, 192, 192, 0.7)',
+        'rgba(153, 102, 255, 0.7)',
+        'rgba(255, 159, 64, 0.7)'
+    ];
+    return colors[index % colors.length];
+}
 
         function populateFeatureTable(features) {
             const tableBody = document.getElementById('sessionFeaturesTable');
