@@ -160,45 +160,71 @@
                 .catch(error => console.error('Error fetching user details:', error));
         }
 
-        function fetchFeatureCounts(userId) {
-            const timeRange = document.getElementById('timeRangeDropdown').value;
-            const customDateRange = document.getElementById('customDateRange');
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+        document.getElementById('timeRangeDropdown').addEventListener('change', (event) => {
+    const timeRange = event.target.value;
+    const customDateRange = document.getElementById('customDateRange');
+    
+    // Show/hide custom date range inputs
+    if (timeRange === 'CUSTOM') {
+        customDateRange.style.display = 'block';
+    } else {
+        customDateRange.style.display = 'none';
+    }
 
-            let params = {};
-            if (timeRange === 'CUSTOM') {
-                params = {
-                    "lastActivity": "CUSTOM",
-                    "dateRange": {
-                        "from": startDate,
-                        "to": endDate
-                    }
-                };
-            } else {
-                params = {
-                    "lastActivity": timeRange
-                };
-            }
+    // Fetch updated feature counts
+    fetchFeatureCounts(currentUserId);
+});
 
-            console.log(params)
+function fetchFeatureCounts(userId) {
+    const timeRange = document.getElementById('timeRangeDropdown').value;
+    const customDateRange = document.getElementById('customDateRange');
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
 
-            fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}/features`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(params)
-            })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const features = data.data.features;
-                        updateFeatureCountChart(features);
-                        populateFeatureTable(features);
-                    }
-                    console.log(response.json())
-                })
-                .catch(error => console.error('Error fetching feature counts:', error));
+    // Prepare parameters for the API call
+    let params = {};
+    if (timeRange === 'CUSTOM') {
+        if (!startDate || !endDate) {
+            alert("Please select both start and end dates for the custom range.");
+            return; // Stop execution if dates are invalid
         }
+        params = {
+            "lastActivity": "CUSTOM",
+            "dateRange": {
+                "from": startDate,
+                "to": endDate
+            }
+        };
+    } else {
+        params = {
+            "lastActivity": timeRange
+        };
+    }
+
+    // Make the API call
+    fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}/features`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Failed to fetch feature counts.");
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                const features = data.data.features;
+                updateFeatureCountChart(features);
+                populateFeatureTable(features);
+            } else {
+                console.error('Error in response:', data.message);
+            }
+        })
+        .catch(error => console.error('Error fetching feature counts:', error));
+}
+
 
       function updateFeatureCountChart(features) {
     const ctx = document.getElementById('featureCountChart').getContext('2d');
