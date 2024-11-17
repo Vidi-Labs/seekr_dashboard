@@ -3,171 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feature Count Table</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
-    <script defer src="script.js"></script>
+    <title>Feature Count and User Details</title>
     <style>
-        body {
-            padding: 20px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
-        .dropdown-container {
-            margin-bottom: 20px;
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        h3 {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h3>User Analytics</h3>
-        
-        <!-- User Details Table -->
-        <h6>User Details</h6>
-        <table class="table table-bordered">
+    <div>
+        <h1>User Details</h1>
+        <p><strong>ID:</strong> <span id="userId">N/A</span></p>
+        <p><strong>Name:</strong> <span id="userName">N/A</span></p>
+        <p><strong>Email:</strong> <span id="userEmail">N/A</span></p>
+        <p><strong>Phone Number:</strong> <span id="userPhoneNumber">N/A</span></p>
+        <p><strong>Anonymous:</strong> <span id="userIsAnonymous">N/A</span></p>
+    </div>
+
+    <div>
+        <h3>Feature Count</h3>
+        <p id="totalFeatures">Total Features: 0</p>
+        <table>
             <thead>
                 <tr>
-                    <th>User ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
+                    <th>Feature Name</th>
+                    <th>Created At</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr>
-                    <td id="userId"></td>
-                    <td id="userName"></td>
-                    <td id="userEmail"></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <!-- Dropdown Menu for Filters -->
-        <div class="dropdown-container">
-            <label for="timeRangeDropdown" class="form-label">Select Time Range:</label>
-            <select id="timeRangeDropdown" class="form-select">
-                <option value="LAST_WEEK">Last Week</option>
-                <option value="LAST_MONTH">Last Month</option>
-                <option value="CUSTOM">Custom Range</option>
-            </select>
-        </div>
-
-        <!-- Custom Date Range Picker -->
-        <div id="customDateRange" class="mb-3" style="display: none;">
-            <label for="startDate" class="form-label">Start Date:</label>
-            <input type="date" id="startDate" class="form-control mb-2">
-            <label for="endDate" class="form-label">End Date:</label>
-            <input type="date" id="endDate" class="form-control">
-        </div>
-
-        <!-- Feature Count Table -->
-        <h6>Feature Count by Date</h6>
-        <table class="table table-striped mt-3">
-            <thead>
-                <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Feature</th>
-                    <th scope="col">Count</th>
-                </tr>
-            </thead>
-            <tbody id="featureCountTableBody">
-                <!-- Dynamic feature rows will be inserted here -->
-            </tbody>
+            <tbody id="featureTableBody"></tbody>
         </table>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const apiUrl = 'https://seekr-analytics.squadhead.workers.dev/analytics/users';
-            const userId = '12345'; // Example User ID, replace with dynamic data if needed
-            
-            const userIdElement = document.getElementById('userId');
-            const userNameElement = document.getElementById('userName');
-            const userEmailElement = document.getElementById('userEmail');
-            const timeRangeDropdown = document.getElementById('timeRangeDropdown');
-            const customDateRange = document.getElementById('customDateRange');
-            const startDateInput = document.getElementById('startDate');
-            const endDateInput = document.getElementById('endDate');
+        // Function to fetch and display user details
+        function fetchUserDetails(userId) {
+            const apiUrl = `https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}`;
 
-            // Populate user details (replace with real user data if available)
-            userIdElement.textContent = userId;
-            userNameElement.textContent = 'John Doe';
-            userEmailElement.textContent = 'john.doe@example.com';
-
-            // Handle dropdown change
-            timeRangeDropdown.addEventListener('change', () => {
-                const selectedValue = timeRangeDropdown.value;
-                if (selectedValue === 'CUSTOM') {
-                    customDateRange.style.display = 'block';
-                } else {
-                    customDateRange.style.display = 'none';
-                    fetchFeatureCounts(userId, selectedValue);
-                }
-            });
-
-            // Fetch data for custom date range
-            startDateInput.addEventListener('change', fetchCustomDateRange);
-            endDateInput.addEventListener('change', fetchCustomDateRange);
-
-            function fetchCustomDateRange() {
-                if (startDateInput.value && endDateInput.value) {
-                    fetchFeatureCounts(userId, 'CUSTOM', startDateInput.value, endDateInput.value);
-                }
-            }
-
-            function fetchFeatureCounts(userId, timeRange, startDate = null, endDate = null) {
-                const requestBody = {
-                    userId,
-                    range: timeRange,
-                };
-                if (timeRange === 'CUSTOM' && startDate && endDate) {
-                    requestBody.startDate = startDate;
-                    requestBody.endDate = endDate;
-                }
-
-                fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(requestBody),
-                })
+            fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
-                    const features = data.features || [];
-                    updateFeatureCountTable(features);
+                    if (data.success) {
+                        const user = data.data.user;
+
+                        document.getElementById('userId').textContent = user.uid ?? '';
+                        document.getElementById('userName').textContent = user.name ?? 'N/A';
+                        document.getElementById('userEmail').textContent = user.email ?? 'N/A';
+                        document.getElementById('userPhoneNumber').textContent = user.phoneNumber ?? 'N/A';
+                        document.getElementById('userIsAnonymous').textContent = user.isAnonymous ? 'Yes' : 'No';
+                    } else {
+                        console.error('Failed to fetch user details:', data);
+                    }
                 })
-                .catch(error => console.error('Error fetching feature counts:', error));
-            }
+                .catch(error => console.error('Error fetching user details:', error));
+        }
 
-            function updateFeatureCountTable(features) {
-                const tableBody = document.getElementById('featureCountTableBody');
-                tableBody.innerHTML = ''; // Clear existing table rows
+        // Function to fetch and display feature counts
+        function fetchFeatureCounts(userId) {
+            const apiUrl = `https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}/features`;
+            
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const featuresData = data.data.features;
+                    const totalFeatures = data.data.total;
 
-                const consolidatedData = {};
-                features.forEach(entry => {
-                    const dateKey = new Date(entry.createdAt).toLocaleDateString();
-                    if (!consolidatedData[dateKey]) {
-                        consolidatedData[dateKey] = {};
-                    }
-                    if (!consolidatedData[dateKey][entry.feature]) {
-                        consolidatedData[dateKey][entry.feature] = 0;
-                    }
-                    consolidatedData[dateKey][entry.feature] += 1;
-                });
+                    // Display total count
+                    document.getElementById('totalFeatures').textContent = `Total Features: ${totalFeatures}`;
 
-                Object.keys(consolidatedData).forEach(date => {
-                    const featuresOnDate = consolidatedData[date];
-                    Object.keys(featuresOnDate).forEach(feature => {
-                        const count = featuresOnDate[feature];
-                        const row = `<tr>
-                            <td>${date}</td>
-                            <td>${feature}</td>
-                            <td>${count}</td>
-                        </tr>`;
-                        tableBody.insertAdjacentHTML('beforeend', row);
+                    // Display features in a table
+                    const tableBody = document.getElementById('featureTableBody');
+                    tableBody.innerHTML = ''; // Clear existing data
+
+                    featuresData.forEach(feature => {
+                        const row = document.createElement('tr');
+                        const featureNameCell = document.createElement('td');
+                        featureNameCell.textContent = feature.feature;
+
+                        const createdAtCell = document.createElement('td');
+                        createdAtCell.textContent = new Date(feature.createdAt).toLocaleString();
+
+                        row.appendChild(featureNameCell);
+                        row.appendChild(createdAtCell);
+                        tableBody.appendChild(row);
                     });
-                });
-            }
+                } else {
+                    console.error('Failed to fetch feature counts:', data);
+                }
+            })
+            .catch(error => console.error('Error fetching feature counts:', error));
+        }
 
-            // Fetch default data for Last Week
-            fetchFeatureCounts(userId, 'LAST_WEEK');
+        // On page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const userId = '0fc31udQGSRqbRj1wzPtpvokQCL2'; // Replace with dynamic user ID as needed
+
+            // Fetch and display user details
+            fetchUserDetails(userId);
+
+            // Fetch and display feature counts
+            fetchFeatureCounts(userId);
         });
     </script>
 </body>
