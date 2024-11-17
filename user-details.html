@@ -178,6 +178,8 @@
                 dateRange: timeRange === 'CUSTOM' ? { from: startDate, to: endDate } : null
             };
 
+            console.log(params)
+
             fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}/features`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
