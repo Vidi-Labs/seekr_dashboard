@@ -166,17 +166,20 @@
             const startDate = document.getElementById('startDate').value;
             const endDate = document.getElementById('endDate').value;
 
+            let params = {};
             if (timeRange === 'CUSTOM') {
-                customDateRange.style.display = 'block';
-                if (!startDate || !endDate) return; // Wait until dates are selected.
+                params = {
+                    "lastActivity": "CUSTOM",
+                    "dateRange": {
+                        "from": startDate,
+                        "to": endDate
+                    }
+                };
             } else {
-                customDateRange.style.display = 'none';
+                params = {
+                    "lastActivity": timeRange
+                };
             }
-
-            const params = {
-                lastActivity: timeRange,
-                dateRange: timeRange === 'CUSTOM' ? { from: startDate, to: endDate } : null
-            };
 
             console.log(params)
 
