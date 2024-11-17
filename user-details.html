@@ -190,6 +190,7 @@
                         updateFeatureCountChart(features);
                         populateFeatureTable(features);
                     }
+                    console.log(response.json())
                 })
                 .catch(error => console.error('Error fetching feature counts:', error));
         }
