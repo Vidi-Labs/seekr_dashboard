@@ -3,126 +3,290 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Feature Count and User Details</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        table, th, td {
-            border: 1px solid black;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        h3 {
-            margin-top: 20px;
-        }
-    </style>
+    <title>User Analytics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 </head>
 <body>
-    <div>
-        <h1>User Details</h1>
-        <p><strong>ID:</strong> <span id="userId">N/A</span></p>
-        <p><strong>Name:</strong> <span id="userName">N/A</span></p>
-        <p><strong>Email:</strong> <span id="userEmail">N/A</span></p>
-        <p><strong>Phone Number:</strong> <span id="userPhoneNumber">N/A</span></p>
-        <p><strong>Anonymous:</strong> <span id="userIsAnonymous">N/A</span></p>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+       <!-- Sidebar -->
+       <div class="col-auto col-md-3 col-lg-2 px-sm-2 px-0 bg-white sidebar-offcanvas d-none d-md-block">
+        <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2">
+            <h4>Seekr</h4>
+            <ul class="nav nav-pills flex-column mb-auto w-100">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Overview</a>
+                </li>
+                <li>
+                    <a href="users_logs.html" class="nav-link active">Users Logs</a>
+                </li>
+                <li>
+                    <a href="active_users.html" class="nav-link">Active Users Logs</a>
+                </li>
+                <li>
+                    <a href="location_logs.html" class="nav-link">Location Logs</a>
+                </li>
+                <li>
+                    <a href="event_logs.html" class="nav-link">Event Logs</a>
+                </li>
+                <li>
+                    <a href="api_logs.html" class="nav-link">Api Logs</a>
+                </li>
+            </ul>
+        </div>
     </div>
 
-    <div>
-        <h3>Feature Count</h3>
-        <p id="totalFeatures">Total Features: 0</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Feature Name</th>
-                    <th>Created At</th>
-                </tr>
-            </thead>
-            <tbody id="featureTableBody"></tbody>
-        </table>
+    <!-- Offcanvas Sidebar for Mobile -->
+    <div class="offcanvas offcanvas-start sidebar-offcanvas" tabindex="-1" id="offcanvasSidebar">
+        <div class="offcanvas-header">
+            <h5 class="offcanvas-title">Seekr</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a href="index.html" class="nav-link">Overview</a>
+                </li>
+                <li>
+                    <a href="users_logs.html" class="nav-link active">Users Logs</a>
+                </li>
+                <li>
+                    <a href="api_logs.html" class="nav-link">API Logs</a>
+                </li>
+                <li>
+                    <a href="location_logs.html" class="nav-link">Location Logs</a>
+                </li>
+                <li>
+                    <a href="event_logs.html" class="nav-link">Event Logs</a>
+                </li>
+                <li>
+                    <a href="api_logs.html" class="nav-link">Api Logs</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+            <!-- Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <!-- User Details Section -->
+                <div id="userDetailsSection" class="mb-4">
+                    <h4>User Details</h4>
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th>User ID</th>
+                                <td id="userId">Loading...</td>
+                            </tr>
+                            <tr>
+                                <th>Name</th>
+                                <td id="userName">Loading...</td>
+                            </tr>
+                            <tr>
+                                <th>Email</th>
+                                <td id="userEmail">Loading...</td>
+                            </tr>
+                            <tr>
+                                <th>Phone Number</th>
+                                <td id="userPhoneNumber">Loading...</td>
+                            </tr>
+                            <tr>
+                                <th>Is Anonymous</th>
+                                <td id="userIsAnonymous">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Dropdown for Time Range -->
+                <div class="mb-3">
+                    <label for="timeRangeDropdown" class="form-label">Select Time Range:</label>
+                    <select class="form-select" id="timeRangeDropdown" onchange="fetchFeatureCounts()">
+                        <option value="LAST_WEEK">Last Week</option>
+                        <option value="LAST_MONTH">Last Month</option>
+                        <option value="CUSTOM">Custom Range</option>
+                    </select>
+
+                    <!-- Custom Date Range Input -->
+                    <div id="customDateRange" class="mt-3" style="display:none;">
+                        <label>From:</label>
+                        <input type="date" id="startDate" class="form-control">
+                        <label>To:</label>
+                        <input type="date" id="endDate" class="form-control">
+                    </div>
+                </div>
+
+                <!-- Feature Count Chart -->
+                <canvas id="featureCountChart" width="400" height="200"></canvas>
+
+                <!-- Feature Details Table -->
+                <h6>Feature Details</h6>
+                <table class="table table-striped mt-3">
+                    <thead>
+                        <tr>
+                            <th scope="col">Feature</th>
+                            <th scope="col">Created At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sessionFeaturesTable">
+                        <!-- Dynamic feature rows will be inserted here -->
+                    </tbody>
+                </table>
+            </main>
+        </div>
     </div>
 
     <script>
-        // Function to fetch and display user details
-        function fetchUserDetails(userId) {
-            const apiUrl = `https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}`;
+        let currentUserId = null; // To store the user ID for API calls.
 
-            fetch(apiUrl)
+        function fetchUserDetails(userId) {
+            currentUserId = userId; // Store the user ID globally.
+            fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         const user = data.data.user;
-
                         document.getElementById('userId').textContent = user.uid ?? '';
                         document.getElementById('userName').textContent = user.name ?? 'N/A';
                         document.getElementById('userEmail').textContent = user.email ?? 'N/A';
                         document.getElementById('userPhoneNumber').textContent = user.phoneNumber ?? 'N/A';
                         document.getElementById('userIsAnonymous').textContent = user.isAnonymous ? 'Yes' : 'No';
-                    } else {
-                        console.error('Failed to fetch user details:', data);
                     }
                 })
                 .catch(error => console.error('Error fetching user details:', error));
         }
 
-        // Function to fetch and display feature counts
-        function fetchFeatureCounts(userId) {
-            const apiUrl = `https://seekr-analytics.squadhead.workers.dev/analytics/users/${userId}/features`;
-            
-            fetch(apiUrl, {
+        function fetchFeatureCounts() {
+            const timeRange = document.getElementById('timeRangeDropdown').value;
+            const customDateRange = document.getElementById('customDateRange');
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (timeRange === 'CUSTOM') {
+                customDateRange.style.display = 'block';
+                if (!startDate || !endDate) return; // Wait until dates are selected.
+            } else {
+                customDateRange.style.display = 'none';
+            }
+
+            const params = {
+                lastActivity: timeRange,
+                dateRange: timeRange === 'CUSTOM' ? { from: startDate, to: endDate } : null
+            };
+
+            fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${currentUserId}/features`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(params)
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    const featuresData = data.data.features;
-                    const totalFeatures = data.data.total;
-
-                    // Display total count
-                    document.getElementById('totalFeatures').textContent = `Total Features: ${totalFeatures}`;
-
-                    // Display features in a table
-                    const tableBody = document.getElementById('featureTableBody');
-                    tableBody.innerHTML = ''; // Clear existing data
-
-                    featuresData.forEach(feature => {
-                        const row = document.createElement('tr');
-                        const featureNameCell = document.createElement('td');
-                        featureNameCell.textContent = feature.feature;
-
-                        const createdAtCell = document.createElement('td');
-                        createdAtCell.textContent = new Date(feature.createdAt).toLocaleString();
-
-                        row.appendChild(featureNameCell);
-                        row.appendChild(createdAtCell);
-                        tableBody.appendChild(row);
-                    });
-                } else {
-                    console.error('Failed to fetch feature counts:', data);
-                }
-            })
-            .catch(error => console.error('Error fetching feature counts:', error));
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const features = data.data.features;
+                        updateFeatureCountChart(features);
+                        populateFeatureTable(features);
+                    }
+                })
+                .catch(error => console.error('Error fetching feature counts:', error));
         }
 
-        // On page load
-        document.addEventListener('DOMContentLoaded', () => {
-            const userId = '0fc31udQGSRqbRj1wzPtpvokQCL2'; // Replace with dynamic user ID as needed
+      function updateFeatureCountChart(features) {
+    const ctx = document.getElementById('featureCountChart').getContext('2d');
 
-            // Fetch and display user details
-            fetchUserDetails(userId);
+    // Step 1: Consolidate features by date
+    const consolidatedData = {};
+    features.forEach(entry => {
+        const dateKey = new Date(entry.createdAt).toLocaleDateString(); // Format date as readable string
+        if (!consolidatedData[dateKey]) {
+            consolidatedData[dateKey] = {};
+        }
+        if (!consolidatedData[dateKey][entry.feature]) {
+            consolidatedData[dateKey][entry.feature] = 0;
+        }
+        consolidatedData[dateKey][entry.feature] += 1;
+    });
 
-            // Fetch and display feature counts
-            fetchFeatureCounts(userId);
-        });
+    // Step 2: Prepare labels and datasets for the chart
+    const labels = Object.keys(consolidatedData); // Unique dates as labels
+    const featureNames = Array.from(
+        new Set(features.map(entry => entry.feature))
+    ); // Unique feature names
+
+    const datasets = featureNames.map((featureName, index) => ({
+        label: featureName,
+        data: labels.map(dateLabel => consolidatedData[dateLabel][featureName] || 0),
+        backgroundColor: getColorByIndex(index),
+        stack: 'stacked' // Ensures stacking by date
+    }));
+
+    console.log("Chart Labels:", labels); // Debugging labels
+    console.log("Chart Datasets:", datasets); // Debugging datasets
+
+    // Step 3: Destroy previous chart instance if it exists
+    if (window.featureChart) {
+        window.featureChart.destroy();
+    }
+
+    // Step 4: Initialize the new stacked bar chart
+    window.featureChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            },
+            scales: {
+                x: {
+                    stacked: true
+                },
+                y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    max: 100 // Ensure y-axis has sufficient range
+                }
+            }
+        }
+    });
+}
+
+
+// Helper function to generate colors for datasets
+function getColorByIndex(index) {
+    const colors = [
+        'rgba(255, 99, 132, 0.7)',
+        'rgba(54, 162, 235, 0.7)',
+        'rgba(255, 206, 86, 0.7)',
+        'rgba(75, 192, 192, 0.7)',
+        'rgba(153, 102, 255, 0.7)',
+        'rgba(255, 159, 64, 0.7)'
+    ];
+    return colors[index % colors.length];
+}
+
+        function populateFeatureTable(features) {
+            const tableBody = document.getElementById('sessionFeaturesTable');
+            tableBody.innerHTML = '';
+            features.forEach(feature => {
+                const row = `<tr>
+                    <td>${feature.feature}</td>
+                    <td>${new Date(feature.createdAt).toLocaleString()}</td>
+                </tr>`;
+                tableBody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        // Assume userId is passed as a query parameter to this page.
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId');
+        if (userId) fetchUserDetails(userId);
     </script>
 </body>
 </html>
