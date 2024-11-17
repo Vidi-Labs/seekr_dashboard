@@ -160,7 +160,7 @@
                 <div class="mb-3">
                     <label for="timeRangeDropdown" class="form-label">Select Time Range:</label>
                     <select class="form-select" id="timeRangeDropdown" onchange="fetchFeatureCounts()">
-                        <option value="LAST_WEEK">Last Week</option>
+                        <option value="LAST_WEEK" selected>Last Week</option>
                         <option value="LAST_MONTH">Last Month</option>
                         <option value="CUSTOM">Custom Range</option>
                     </select>
@@ -265,54 +265,76 @@
 
     <!-- Fetch and display session details -->
     <script>
+        
+
         document.getElementById('timeRangeDropdown').addEventListener('change', (e) => {
             const value = e.target.value;
             document.getElementById('customDateRange').style.display = value === 'CUSTOM' ? 'block' : 'none';
         });
+        
+        
 
+        document.addEventListener('DOMContentLoaded', () => {
+    // Ensure LAST_WEEK is the default selection
+    const dropdown = document.getElementById('timeRangeDropdown');
+    dropdown.value = 'LAST_WEEK';
 
-        function fetchFeatureCounts() {
-            const urlParams = new URLSearchParams(window.location.search);
+    // Fetch and display data for LAST_WEEK by default
+    fetchFeatureCounts();
+});
 
-            const timeRange = document.getElementById('timeRangeDropdown').value;
-            let startDate = document.getElementById('startDate').value;
-            let endDate = document.getElementById('endDate').value;
+function fetchFeatureCounts() {
+    const dropdown = document.getElementById('timeRangeDropdown');
+    const timeRange = dropdown.value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
 
-            let params = {};
-            if (timeRange === 'CUSTOM') {
-                params = {
-                    "lastActivity": "CUSTOM",
-                    "dateRange": {
-                        "from": startDate,
-                        "to": endDate
-                    }
-                };
-            } else {
-                params = {
-                    "lastActivity": timeRange
-                };
+    // Prepare parameters based on the selected time range
+    let params = {};
+    if (timeRange === 'CUSTOM') {
+        params = {
+            "lastActivity": "CUSTOM",
+            "dateRange": {
+                "from": startDate,
+                "to": endDate
             }
+        };
+    } else {
+        params = {
+            "lastActivity": timeRange // Default: LAST_WEEK
+        };
+    }
 
-            showSpinner();
+    showSpinner();
 
-            const uid = urlParams.get('uid'); // Replace with actual UID
-            fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${uid}/feature-count`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(params)
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    updateFeatureCountTable(data.data);
-                    updateFeatureCountChart(data.data);
-                }
-            })
-            .catch(error => console.error('Error fetching feature counts:', error))
-            .finally(() => hideSpinner());
-        }
+    // Fetch feature counts for the selected range
+    const uid = new URLSearchParams(window.location.search).get('uid'); // Replace with actual UID
+    fetch(`https://seekr-analytics.squadhead.workers.dev/analytics/users/${uid}/feature-count`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(params)
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                updateFeatureCountTable(data.data);
+                updateFeatureCountChart(data.data);
+            }
+        })
+        .catch(error => console.error('Error fetching feature counts:', error))
+        .finally(() => hideSpinner());
+}
+
+document.getElementById('timeRangeDropdown').addEventListener('change', (e) => {
+    const value = e.target.value;
+    document.getElementById('customDateRange').style.display = value === 'CUSTOM' ? 'block' : 'none';
+
+    // Automatically fetch data for the selected range
+    fetchFeatureCounts();
+});
+
 
         function updateFeatureCountTable(features) {
             const tableBody = document.getElementById('featureCountsTable');
