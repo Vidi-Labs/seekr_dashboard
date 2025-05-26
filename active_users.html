@@ -147,11 +147,21 @@
                     <div class="row mt-3">
                         <!-- Dropdown for Time Range Selection -->
                         <div class="col-md-12 mb-3">
-                            <select class="form-select" id="timeRangeSelect">
-                                <option value="LAST_MONTH">Last Month</option>
-                                <option value="LAST_WEEK">Last Week</option>
-                                <option value="CUSTOM">Custom Range</option>
-                            </select>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <select class="form-select" id="timeRangeSelect">
+                                        <option value="LAST_MONTH">Last Month</option>
+                                        <option value="LAST_WEEK">Last Week</option>
+                                        <option value="CUSTOM">Custom Range</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="voToggle">
+                                        <label class="form-check-label" for="voToggle">Visually Impaired User</label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <!-- Date Picker for Custom Range -->
                         <div class="col-md-6 mb-3 d-none" id="dateRangePicker">
@@ -228,6 +238,7 @@
     const dateRangePicker = document.getElementById('dateRangePicker');
     const startDateInput = document.getElementById('startDate');
     const endDateInput = document.getElementById('endDate');
+    const voToggle = document.getElementById('voToggle');
 
     // Function to fetch data based on selected time range
     const fetchData = (timeRange, startDate = null, endDate = null) => {
@@ -240,10 +251,13 @@
         // Prepare API URL and parameters
         const url = 'https://seekr-analytics.squadhead.workers.dev/analytics/active-users';
 
-        let params = {};
+        let params = {
+            voActivated: voToggle.checked
+        };
 
         if (timeRange === 'CUSTOM') {
             params = {
+                ...params,
                 "lastActivity": "CUSTOM",
                 "dateRange": {
                     "from": startDate,
@@ -252,6 +266,7 @@
             };
         } else {
             params = {
+                ...params,
                 "lastActivity": timeRange
             };
         }
@@ -314,6 +329,16 @@
             dateRangePicker.classList.remove('d-none');
         } else {
             dateRangePicker.classList.add('d-none');
+            fetchData(selectedRange);
+        }
+    });
+
+    // Event listener for VO toggle
+    voToggle.addEventListener('change', function() {
+        const selectedRange = timeRangeSelect.value;
+        if (selectedRange === 'CUSTOM' && startDateInput.value && endDateInput.value) {
+            fetchData('CUSTOM', startDateInput.value, endDateInput.value);
+        } else {
             fetchData(selectedRange);
         }
     });
