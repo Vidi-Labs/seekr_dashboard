@@ -27,12 +27,13 @@
 
         .sidebar-offcanvas .nav-link.active {
             color: #FFFFFF;
-            background-color: #0D6EFD;
+            background-color: #00a0c7;
             border-radius: 0.375rem;
         }
 
         .sidebar-offcanvas .nav-link:hover {
-            background-color: #E3F5FF;
+            background-color: #e0f7ff;
+            color: #00a0c7;
         }
 
         .card-custom {
@@ -69,7 +70,7 @@
 
         .navbar-brand {
             font-size: 1.5rem;
-            color: #4A4A4A;
+            color: #00a0c7;
         }
     </style>
 </head>
@@ -101,6 +102,7 @@
                             <a href="api_logs.html" class="nav-link">Api Logs</a>
                         </li>
                     </ul>
+                    <button id="logoutBtn" class="btn btn-danger w-100 mt-3">Logout</button>
                 </div>
             </div>
 
@@ -131,6 +133,7 @@
                             <a href="api_logs.html" class="nav-link">Api Logs</a>
                         </li>
                     </ul>
+                    <button id="logoutBtnMobile" class="btn btn-danger w-100 mt-3">Logout</button>
                 </div>
             </div>
 
@@ -239,6 +242,11 @@
     const startDateInput = document.getElementById('startDate');
     const endDateInput = document.getElementById('endDate');
     const voToggle = document.getElementById('voToggle');
+
+    // Redirect to login if not authenticated
+    if (!document.cookie.split('; ').find(row => row.startsWith('apiKeyCookie='))) {
+        window.location.href = 'login.html';
+    }
 
     // Function to fetch data based on selected time range
     const fetchData = (timeRange, startDate = null, endDate = null) => {
@@ -356,6 +364,18 @@
     fetchData('LAST_MONTH');
 });
 
+function handleLogout() {
+    fetch('https://seekr-analytics.squadhead.workers.dev/api/auth/sign-out', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: '{}'
+    }).then(() => {
+        window.location.href = 'login.html';
+    });
+}
+document.getElementById('logoutBtn').onclick = handleLogout;
+document.getElementById('logoutBtnMobile').onclick = handleLogout;
 </script>
 </body> </html> 
 

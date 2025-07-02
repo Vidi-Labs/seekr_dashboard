@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login | Seekr Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #00a0c7 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .login-container {
+      background: #fff;
+      padding: 2.5rem 2rem;
+      border-radius: 1.25rem;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+      width: 100%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .login-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #00a0c7;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    .login-form label {
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+    .login-form input[type="email"],
+    .login-form input[type="password"],
+    .login-form input[type="text"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      background: #f9f9f9;
+      transition: border 0.2s;
+    }
+    .login-form input:focus {
+      border: 1.5px solid #4f46e5;
+      outline: none;
+    }
+    .login-form .remember-me {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .login-form .remember-me input {
+      margin-right: 0.5rem;
+    }
+    .login-form button {
+      width: 100%;
+      padding: 0.85rem;
+      background: linear-gradient(90deg, #00a0c7 0%, #764ba2 100%);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .login-form button:hover {
+      background: linear-gradient(90deg, #008bb0 0%, #6b47b6 100%);
+    }
+    .error-message {
+      color: #e53e3e;
+      background: #fff5f5;
+      border: 1px solid #fed7d7;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .success-message {
+      color: #38a169;
+      background: #f0fff4;
+      border: 1px solid #c6f6d5;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-title">Seekr Login</div>
+    <form class="login-form" id="loginForm">
+      <div>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="username">
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password">
+      </div>
+      <div class="remember-me">
+        <input type="checkbox" id="rememberMe" name="rememberMe">
+        <label for="rememberMe">Remember Me</label>
+      </div>
+      <button type="submit">Sign In</button>
+      <div id="message"></div>
+    </form>
+  </div>
+  <script>
+    const API_URL = 'https://seekr-analytics.squadhead.workers.dev/api/auth/sign-in/email';
+    const API_KEY_COOKIE = 'QUxMIFlPVVIgQkFTRSBBUkUgQkVMT05HIFRPIFVT'; // Provided value
+    // Bearer token will be handled after login if needed
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+      const messageDiv = document.getElementById('message');
+      messageDiv.innerHTML = '';
+
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ', // Add Bearer token here if you have it
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            email,
+            password,
+            callbackURL: '',
+            rememberMe
+          })
+        });
+
+        document.cookie = `apiKeyCookie=${API_KEY_COOKIE}; path=/;`;
+
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.message || 'Login failed.');
+        }
+        messageDiv.innerHTML = `<div class='success-message'>Login successful! Redirecting...</div>`;
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1200);
+      } catch (err) {
+        messageDiv.innerHTML = `<div class='error-message'>${err.message}</div>`;
+      }
+    });
+  </script>
+</body>
+</html> 
