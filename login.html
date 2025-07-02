@@ -136,6 +136,7 @@
           headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ', // Add Bearer token here if you have it
+            // OpenAuth is used in the backend
           },
           credentials: 'include',
           body: JSON.stringify({
@@ -148,7 +149,14 @@
 
         document.cookie = `apiKeyCookie=${API_KEY_COOKIE}; path=/;`;
 
-        const data = await response.json();
+        // Robustly handle empty or non-JSON responses
+        const text = await response.text();
+        let data = {};
+        try {
+          data = text ? JSON.parse(text) : {};
+        } catch (err) {
+          data = {};
+        }
         if (!response.ok) {
           throw new Error(data.message || 'Login failed.');
         }
