@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up | Seekr Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="auth.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #00a0c7 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .signup-container {
+      background: #fff;
+      padding: 2.5rem 2rem;
+      border-radius: 1.25rem;
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+      width: 100%;
+      max-width: 450px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .signup-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #00a0c7;
+      text-align: center;
+      margin-bottom: 0.5rem;
+    }
+    .signup-subtitle {
+      text-align: center;
+      color: #666;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    .signup-form label {
+      font-weight: 500;
+      color: #333;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+    .signup-form input[type="text"],
+    .signup-form input[type="email"],
+    .signup-form input[type="password"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 1rem;
+      background: #f9f9f9;
+      transition: border 0.2s;
+      box-sizing: border-box;
+    }
+    .signup-form input:focus {
+      border: 1.5px solid #4f46e5;
+      outline: none;
+      background: #fff;
+    }
+    .password-requirements {
+      font-size: 0.8rem;
+      color: #666;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      background: #f8f9fa;
+      border-radius: 0.25rem;
+    }
+    .password-requirements ul {
+      margin: 0.25rem 0 0 1rem;
+      padding: 0;
+    }
+    .password-requirements li {
+      margin-bottom: 0.125rem;
+    }
+    .signup-form button {
+      width: 100%;
+      padding: 0.85rem;
+      background: linear-gradient(90deg, #00a0c7 0%, #764ba2 100%);
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .signup-form button:hover {
+      background: linear-gradient(90deg, #008bb0 0%, #6b47b6 100%);
+    }
+    .signup-form button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .error-message {
+      color: #e53e3e;
+      background: #fff5f5;
+      border: 1px solid #fed7d7;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .success-message {
+      color: #38a169;
+      background: #f0fff4;
+      border: 1px solid #c6f6d5;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .login-link {
+      text-align: center;
+      margin-top: 1rem;
+    }
+    .login-link a {
+      color: #00a0c7;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+    .form-row {
+      display: flex;
+      gap: 1rem;
+    }
+    .form-row > div {
+      flex: 1;
+    }
+    @media (max-width: 480px) {
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <div class="signup-title">Create Account</div>
+    <div class="signup-subtitle">Join Seekr Dashboard to get started</div>
+    <form class="signup-form" id="signupForm">
+      <div class="form-row">
+        <div>
+          <label for="firstName">First Name</label>
+          <input type="text" id="firstName" name="firstName" required autocomplete="given-name">
+        </div>
+        <div>
+          <label for="lastName">Last Name</label>
+          <input type="text" id="lastName" name="lastName" required autocomplete="family-name">
+        </div>
+      </div>
+      <div>
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required autocomplete="email">
+      </div>
+      <div>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="new-password">
+        <div class="password-requirements">
+          <strong>Password must contain:</strong>
+          <ul>
+            <li id="length-check">At least 8 characters</li>
+            <li id="uppercase-check">One uppercase letter</li>
+            <li id="lowercase-check">One lowercase letter</li>
+            <li id="number-check">One number</li>
+            <li id="special-check">One special character</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <label for="confirmPassword">Confirm Password</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" required autocomplete="new-password">
+      </div>
+      <button type="submit" id="signupBtn">Create Account</button>
+      <div id="message"></div>
+    </form>
+    <div class="login-link">
+      Already have an account? <a href="login.html">Sign In</a>
+    </div>
+  </div>
+
+  <script>
+
+    // Password validation
+    function validatePassword(password) {
+      const validation = auth.validatePassword(password);
+      
+      // Update UI
+      document.getElementById('length-check').style.color = validation.checks.length ? '#38a169' : '#e53e3e';
+      document.getElementById('uppercase-check').style.color = validation.checks.uppercase ? '#38a169' : '#e53e3e';
+      document.getElementById('lowercase-check').style.color = validation.checks.lowercase ? '#38a169' : '#e53e3e';
+      document.getElementById('number-check').style.color = validation.checks.number ? '#38a169' : '#e53e3e';
+      document.getElementById('special-check').style.color = validation.checks.special ? '#38a169' : '#e53e3e';
+
+      return validation.isValid;
+    }
+
+    function validateForm() {
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      // Basic validation
+      if (!firstName || !lastName || !email || !password || !confirmPassword) {
+        return { valid: false, message: 'All fields are required.' };
+      }
+
+      // Email validation
+      if (!auth.validateEmail(email)) {
+        return { valid: false, message: 'Please enter a valid email address.' };
+      }
+
+      // Password validation
+      if (!validatePassword(password)) {
+        return { valid: false, message: 'Password does not meet requirements.' };
+      }
+
+      // Password confirmation
+      if (password !== confirmPassword) {
+        return { valid: false, message: 'Passwords do not match.' };
+      }
+
+      return { valid: true };
+    }
+
+    // Real-time password validation
+    document.getElementById('password').addEventListener('input', function() {
+      validatePassword(this.value);
+    });
+
+    // Real-time password confirmation check
+    document.getElementById('confirmPassword').addEventListener('input', function() {
+      const password = document.getElementById('password').value;
+      const confirmPassword = this.value;
+      
+      if (confirmPassword && password !== confirmPassword) {
+        this.style.borderColor = '#e53e3e';
+      } else {
+        this.style.borderColor = '#e0e0e0';
+      }
+    });
+
+    document.getElementById('signupForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const validation = validateForm();
+      if (!validation.valid) {
+        document.getElementById('message').innerHTML = `<div class='error-message'>${validation.message}</div>`;
+        return;
+      }
+
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const messageDiv = document.getElementById('message');
+      const signupBtn = document.getElementById('signupBtn');
+
+      // Disable button and show loading
+      signupBtn.disabled = true;
+      signupBtn.textContent = 'Creating Account...';
+      messageDiv.innerHTML = '';
+
+      try {
+        const result = await auth.signup(`${firstName} ${lastName}`, email, password);
+        
+        if (result.success) {
+          messageDiv.innerHTML = `<div class='success-message'>Account created successfully! Redirecting to dashboard...</div>`;
+          setTimeout(() => {
+            window.location.href = 'index.html';
+          }, 1500);
+        } else {
+          messageDiv.innerHTML = `<div class='error-message'>${result.error}</div>`;
+        }
+      } catch (err) {
+        messageDiv.innerHTML = `<div class='error-message'>${err.message}</div>`;
+      } finally {
+        signupBtn.disabled = false;
+        signupBtn.textContent = 'Create Account';
+      }
+    });
+
+    // Check if user is already logged in
+    document.addEventListener('DOMContentLoaded', function() {
+      auth.redirectIfAuthenticated();
+    });
+  </script>
+</body>
+</html> 
