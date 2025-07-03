@@ -276,9 +276,11 @@
         
         if (result.success) {
           messageDiv.innerHTML = `<div class='success-message'>Account created successfully! Redirecting to dashboard...</div>`;
+          // Add a small delay to ensure session is stored
           setTimeout(() => {
+            console.log('Redirecting to dashboard after signup');
             window.location.href = 'index.html';
-          }, 1500);
+          }, 2000);
         } else {
           messageDiv.innerHTML = `<div class='error-message'>${result.error}</div>`;
         }

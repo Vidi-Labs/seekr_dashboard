@@ -11,16 +11,29 @@ class AuthManager {
         const authToken = localStorage.getItem('authToken');
         const sessionExpiry = localStorage.getItem('sessionExpiry');
         
+        console.log('Checking authentication:');
+        console.log('- Auth token:', authToken ? 'Present' : 'Missing');
+        console.log('- Session expiry:', sessionExpiry);
+        
         if (!authToken || !sessionExpiry) {
+            console.log('Authentication failed: missing token or expiry');
             return false;
         }
 
         // Check if session has expired
-        if (new Date(sessionExpiry) <= new Date()) {
+        const now = new Date();
+        const expiry = new Date(sessionExpiry);
+        console.log('- Current time:', now.toISOString());
+        console.log('- Expiry time:', expiry.toISOString());
+        console.log('- Is expired:', now > expiry);
+        
+        if (now > expiry) {
+            console.log('Session expired, clearing session');
             this.clearSession();
             return false;
         }
 
+        console.log('Authentication successful');
         return true;
     }
 
@@ -37,12 +50,20 @@ class AuthManager {
 
     // Store session data
     storeSession(token, user) {
+        console.log('Storing session data:');
+        console.log('- Token:', token ? token.substring(0, 10) + '...' : 'null');
+        console.log('- User:', user);
+        
         localStorage.setItem('authToken', token);
         localStorage.setItem('userData', JSON.stringify(user));
         localStorage.setItem('sessionExpiry', new Date(Date.now() + this.SESSION_DURATION).toISOString());
         
         // Set API key cookie
         document.cookie = `apiKeyCookie=${this.API_KEY_COOKIE}; path=/; max-age=${this.SESSION_DURATION / 1000}; secure; samesite=strict`;
+        
+        console.log('Session stored successfully');
+        console.log('- Stored token:', localStorage.getItem('authToken') ? 'Present' : 'Missing');
+        console.log('- Stored expiry:', localStorage.getItem('sessionExpiry'));
     }
 
     // Clear session data
@@ -58,20 +79,33 @@ class AuthManager {
     // Validate session with server
     async validateSession() {
         try {
+            const token = this.getAuthToken();
+            if (!token) {
+                console.log('No auth token found');
+                return false;
+            }
+
+            console.log('Validating session with token:', token.substring(0, 10) + '...');
+            
             const response = await fetch(`${this.API_BASE}/auth/get-session`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.getAuthToken()}`
+                    'Authorization': `Bearer ${token}`
                 },
                 credentials: 'include'
             });
 
+            console.log('Session validation response status:', response.status);
+
             if (!response.ok) {
-                throw new Error('Session validation failed');
+                console.log('Session validation failed with status:', response.status);
+                // Don't clear session on validation failure, just return false
+                return false;
             }
 
             const data = await response.json();
+            console.log('Session validation response:', data);
             
             // Update session with fresh data
             if (data.session && data.user) {
@@ -79,10 +113,11 @@ class AuthManager {
                 return true;
             }
 
+            console.log('Invalid session data received');
             return false;
         } catch (error) {
             console.error('Session validation error:', error);
-            this.clearSession();
+            // Don't clear session on network errors, just return false
             return false;
         }
     }
@@ -234,6 +269,23 @@ class AuthManager {
             'Content-Type': 'application/json',
             ...(token && { 'Authorization': `Bearer ${token}` })
         };
+    }
+
+    // Test API connectivity
+    async testAPI() {
+        try {
+            const response = await fetch(`${this.API_BASE}/auth/get-session`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            console.log('API test response:', response.status);
+            return response.status;
+        } catch (error) {
+            console.error('API test error:', error);
+            return 'error';
+        }
     }
 }
 

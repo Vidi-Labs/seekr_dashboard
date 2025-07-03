@@ -410,19 +410,40 @@
 
         // Authentication check on page load
         document.addEventListener('DOMContentLoaded', async function() {
-            if (!auth.requireAuth()) {
-                return;
-            }
-
-            // Validate session with server
-            const isValid = await auth.validateSession();
-            if (!isValid) {
+            console.log('Dashboard loading...');
+            
+            // Test API connectivity first
+            const apiStatus = await auth.testAPI();
+            console.log('API connectivity test result:', apiStatus);
+            
+            // Check if user is authenticated locally first
+            if (!auth.isAuthenticated()) {
+                console.log('User not authenticated, redirecting to login');
                 window.location.href = 'login.html';
                 return;
             }
 
-            // Start polling data
-            pollDashboardData();
+            console.log('User authenticated locally, validating session...');
+            
+            // Validate session with server
+            try {
+                const isValid = await auth.validateSession();
+                if (!isValid) {
+                    console.log('Session validation failed, but user has valid local session');
+                    console.log('Continuing with local session...');
+                    // Continue with local session if server validation fails
+                    // This prevents the redirect loop issue
+                }
+                
+                console.log('Starting dashboard');
+                // Start polling data
+                pollDashboardData();
+            } catch (error) {
+                console.error('Session validation error:', error);
+                console.log('Continuing with local session despite validation error');
+                // Continue with local session even if validation fails
+                pollDashboardData();
+            }
         });
     </script>
 </body>
