@@ -102,14 +102,47 @@
                     </table>
                 </div>
 
-                <!-- Dropdown for Time Range -->
+                <!-- Filters -->
                 <div class="mb-3">
-                    <label for="timeRangeDropdown" class="form-label">Select Time Range:</label>
-                    <select class="form-select" id="timeRangeDropdown" onchange="fetchFeatureCounts()">
-                        <option value="LAST_WEEK">Last Week</option>
-                        <option value="LAST_MONTH">Last Month</option>
-                        <option value="CUSTOM">Custom Range</option>
-                    </select>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <label for="timeRangeDropdown" class="form-label">Time Range:</label>
+                            <select class="form-select" id="timeRangeDropdown">
+                                <option value="LAST_WEEK">Last Week</option>
+                                <option value="LAST_MONTH">Last Month</option>
+                                <option value="CUSTOM">Custom Range</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="modeSelect" class="form-label">Mode:</label>
+                            <select class="form-select" id="modeSelect">
+                                <option value="ALL">All Modes</option>
+                                <option value="FOREGROUND">Foreground</option>
+                                <option value="BACKGROUND">Background</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="langCodeSelect" class="form-label">Language:</label>
+                            <select class="form-select" id="langCodeSelect">
+                                <option value="en_US">English (US)</option>
+                                <option value="ja_JP">Japanese (JP)</option>
+                                <option value="es_ES">Spanish (ES)</option>
+                                <option value="ko_KR">Korean (KR)</option>
+                                <option value="tl_PH">Tagalog (PH)</option>
+                                <option value="ms_MY">Malay (MY)</option>
+                                <option value="hi_IN">Hindi (IN)</option>
+                                <option value="zh_CN">Chinese (CN)</option>
+                                <option value="zh_HK">Chinese (HK)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Visually Impaired:</label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="voToggle">
+                                <label class="form-check-label" for="voToggle">VO Activated</label>
+                            </div>
+                        </div>
+                    </div>
 
                     <!-- Custom Date Range Input -->
                     <div id="customDateRange" class="mt-3" style="display:none;">
@@ -168,19 +201,26 @@
         }
 
         document.getElementById('timeRangeDropdown').addEventListener('change', (event) => {
-    const timeRange = event.target.value;
-    const customDateRange = document.getElementById('customDateRange');
-    
-    // Show/hide custom date range inputs
-    if (timeRange === 'CUSTOM') {
-        customDateRange.style.display = 'block';
-    } else {
-        customDateRange.style.display = 'none';
-    }
+            const timeRange = event.target.value;
+            const customDateRange = document.getElementById('customDateRange');
+            
+            // Show/hide custom date range inputs
+            if (timeRange === 'CUSTOM') {
+                customDateRange.style.display = 'block';
+            } else {
+                customDateRange.style.display = 'none';
+            }
 
-    // Fetch updated feature counts
-    fetchFeatureCounts(currentUserId);
-});
+            // Fetch updated feature counts
+            fetchFeatureCounts(currentUserId);
+        });
+
+        // Event listeners for new filter fields
+        ['modeSelect', 'langCodeSelect', 'voToggle'].forEach(id => {
+            document.getElementById(id).addEventListener('change', function() {
+                fetchFeatureCounts(currentUserId);
+            });
+        });
 
 function fetchFeatureCounts(userId) {
     const timeRange = document.getElementById('timeRangeDropdown').value;
@@ -189,13 +229,19 @@ function fetchFeatureCounts(userId) {
     const endDate = document.getElementById('endDate').value;
 
     // Prepare parameters for the API call
-    let params = {};
+    let params = {
+        mode: document.getElementById('modeSelect').value,
+        lang_code: document.getElementById('langCodeSelect').value,
+        voActivated: document.getElementById('voToggle').checked
+    };
+    
     if (timeRange === 'CUSTOM') {
         if (!startDate || !endDate) {
             alert("Please select both start and end dates for the custom range.");
             return; // Stop execution if dates are invalid
         }
         params = {
+            ...params,
             "lastActivity": "CUSTOM",
             "dateRange": {
                 "from": startDate,
@@ -204,6 +250,7 @@ function fetchFeatureCounts(userId) {
         };
     } else {
         params = {
+            ...params,
             "lastActivity": timeRange
         };
     }

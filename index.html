@@ -238,11 +238,41 @@
 
                     <!-- Dropdown and Chart -->
                     <div class="content-header">
-                        <select class="form-select w-auto" id="timeRangeSelect">
-                            <option value="LAST_MONTH" selected>Last Month</option>
-                            <option value="LAST_WEEK">Last Week</option>
-                            <option value="CUSTOM">Custom Range</option>
-                        </select>
+                        <div class="row mb-3">
+                            <div class="col-md-2">
+                                <select class="form-select" id="timeRangeSelect">
+                                    <option value="LAST_MONTH" selected>Last Month</option>
+                                    <option value="LAST_WEEK">Last Week</option>
+                                    <option value="CUSTOM">Custom Range</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="modeSelect">
+                                    <option value="ALL">All Modes</option>
+                                    <option value="FOREGROUND">Foreground</option>
+                                    <option value="BACKGROUND">Background</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="langCodeSelect">
+                                    <option value="en_US">English (US)</option>
+                                    <option value="ja_JP">Japanese (JP)</option>
+                                    <option value="es_ES">Spanish (ES)</option>
+                                    <option value="ko_KR">Korean (KR)</option>
+                                    <option value="tl_PH">Tagalog (PH)</option>
+                                    <option value="ms_MY">Malay (MY)</option>
+                                    <option value="hi_IN">Hindi (IN)</option>
+                                    <option value="zh_CN">Chinese (CN)</option>
+                                    <option value="zh_HK">Chinese (HK)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="voToggle">
+                                    <label class="form-check-label" for="voToggle">VO Activated</label>
+                                </div>
+                            </div>
+                        </div>
 
                         <div id="customDateRange" class="d-none mt-2">
                             <input type="date" id="startDate" class="form-control d-inline w-auto">
@@ -348,10 +378,17 @@
         }
 
         function buildParams(timeRange, startDate, endDate) {
+            const baseParams = {
+                mode: document.getElementById('modeSelect').value,
+                lang_code: document.getElementById('langCodeSelect').value,
+                voActivated: document.getElementById('voToggle').checked
+            };
+            
             return timeRange === 'CUSTOM' ? {
+                ...baseParams,
                 "lastActivity": "CUSTOM",
                 "dateRange": { "from": startDate, "to": endDate }
-            } : { "lastActivity": timeRange };
+            } : { ...baseParams, "lastActivity": timeRange };
         }
 
         function pollDashboardData() {
@@ -370,6 +407,16 @@
             if (selectedRange !== 'CUSTOM') {
                 pollDashboardData();
             }
+        });
+
+        // Event listeners for new filter fields
+        ['modeSelect', 'langCodeSelect', 'voToggle'].forEach(id => {
+            document.getElementById(id).addEventListener('change', function() {
+                const selectedRange = document.getElementById('timeRangeSelect').value;
+                if (selectedRange !== 'CUSTOM') {
+                    pollDashboardData();
+                }
+            });
         });
 
         document.getElementById('endDate').addEventListener('change', function () {

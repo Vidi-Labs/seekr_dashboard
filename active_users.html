@@ -151,14 +151,34 @@
                         <!-- Dropdown for Time Range Selection -->
                         <div class="col-md-12 mb-3">
                             <div class="row">
-                                <div class="col-md-6">
+                                <div class="col-md-3">
                                     <select class="form-select" id="timeRangeSelect">
                                         <option value="LAST_MONTH">Last Month</option>
                                         <option value="LAST_WEEK">Last Week</option>
                                         <option value="CUSTOM">Custom Range</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-3">
+                                    <select class="form-select" id="modeSelect">
+                                        <option value="ALL">All Modes</option>
+                                        <option value="FOREGROUND">Foreground</option>
+                                        <option value="BACKGROUND">Background</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="langCodeSelect">
+                                        <option value="en_US">English (US)</option>
+                                        <option value="ja_JP">Japanese (JP)</option>
+                                        <option value="es_ES">Spanish (ES)</option>
+                                        <option value="ko_KR">Korean (KR)</option>
+                                        <option value="tl_PH">Tagalog (PH)</option>
+                                        <option value="ms_MY">Malay (MY)</option>
+                                        <option value="hi_IN">Hindi (IN)</option>
+                                        <option value="zh_CN">Chinese (CN)</option>
+                                        <option value="zh_HK">Chinese (HK)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="voToggle">
                                         <label class="form-check-label" for="voToggle">Visually Impaired User</label>
@@ -242,6 +262,8 @@
     const startDateInput = document.getElementById('startDate');
     const endDateInput = document.getElementById('endDate');
     const voToggle = document.getElementById('voToggle');
+    const modeSelect = document.getElementById('modeSelect');
+    const langCodeSelect = document.getElementById('langCodeSelect');
 
     // Redirect to login if not authenticated
     if (!document.cookie.split('; ').find(row => row.startsWith('apiKeyCookie='))) {
@@ -260,7 +282,9 @@
         const url = 'https://seekr-analytics.squadhead.workers.dev/analytics/active-users';
 
         let params = {
-            voActivated: voToggle.checked
+            voActivated: voToggle.checked,
+            mode: modeSelect.value,
+            lang_code: langCodeSelect.value
         };
 
         if (timeRange === 'CUSTOM') {
@@ -343,6 +367,26 @@
 
     // Event listener for VO toggle
     voToggle.addEventListener('change', function() {
+        const selectedRange = timeRangeSelect.value;
+        if (selectedRange === 'CUSTOM' && startDateInput.value && endDateInput.value) {
+            fetchData('CUSTOM', startDateInput.value, endDateInput.value);
+        } else {
+            fetchData(selectedRange);
+        }
+    });
+
+    // Event listener for mode selection
+    modeSelect.addEventListener('change', function() {
+        const selectedRange = timeRangeSelect.value;
+        if (selectedRange === 'CUSTOM' && startDateInput.value && endDateInput.value) {
+            fetchData('CUSTOM', startDateInput.value, endDateInput.value);
+        } else {
+            fetchData(selectedRange);
+        }
+    });
+
+    // Event listener for language code selection
+    langCodeSelect.addEventListener('change', function() {
         const selectedRange = timeRangeSelect.value;
         if (selectedRange === 'CUSTOM' && startDateInput.value && endDateInput.value) {
             fetchData('CUSTOM', startDateInput.value, endDateInput.value);

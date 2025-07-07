@@ -119,11 +119,41 @@
                     <div class="row mt-3">
                         <!-- Dropdown for Time Range Selection -->
                         <div class="col-md-12 mb-3">
-                            <select class="form-select" id="timeRangeSelect">
-                                <option value="LAST_MONTH">Last Month</option>
-                                <option value="LAST_WEEK">Last Week</option>
-                                <option value="CUSTOM">Custom Range</option>
-                            </select>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <select class="form-select" id="timeRangeSelect">
+                                        <option value="LAST_MONTH">Last Month</option>
+                                        <option value="LAST_WEEK">Last Week</option>
+                                        <option value="CUSTOM">Custom Range</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="modeSelect">
+                                        <option value="ALL">All Modes</option>
+                                        <option value="FOREGROUND">Foreground</option>
+                                        <option value="BACKGROUND">Background</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="langCodeSelect">
+                                        <option value="en_US">English (US)</option>
+                                        <option value="ja_JP">Japanese (JP)</option>
+                                        <option value="es_ES">Spanish (ES)</option>
+                                        <option value="ko_KR">Korean (KR)</option>
+                                        <option value="tl_PH">Tagalog (PH)</option>
+                                        <option value="ms_MY">Malay (MY)</option>
+                                        <option value="hi_IN">Hindi (IN)</option>
+                                        <option value="zh_CN">Chinese (CN)</option>
+                                        <option value="zh_HK">Chinese (HK)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="voToggle">
+                                        <label class="form-check-label" for="voToggle">Visually Impaired User</label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <!-- Date Picker for Custom Range -->
                         <div class="col-md-6 mb-3 d-none" id="dateRangePicker">
@@ -181,16 +211,24 @@
             const endDateInput = document.getElementById('endDate');
             const totalRequestsElement = document.getElementById('totalRequests');
             const apiLogsTable = document.getElementById('apiLogsTable');
+            const modeSelect = document.getElementById('modeSelect');
+            const langCodeSelect = document.getElementById('langCodeSelect');
+            const voToggle = document.getElementById('voToggle');
 
             // Function to fetch data based on selected time range
             const fetchData = (timeRange, startDate = null, endDate = null) => {
                 // Prepare API URL and parameters
                 const url = 'https://seekr-analytics.squadhead.workers.dev/analytics/daily-request-report';
 
-                let params = {};
+                let params = {
+                    mode: modeSelect.value,
+                    lang_code: langCodeSelect.value,
+                    voActivated: voToggle.checked
+                };
 
                 if (timeRange === 'CUSTOM') {
                     params = {
+                        ...params,
                         "lastActivity": "CUSTOM",
                         "dateRange": {
                             "from": startDate,
@@ -199,6 +237,7 @@
                     };
                 } else {
                     params = {
+                        ...params,
                         "lastActivity": timeRange
                     };
                 }
@@ -262,6 +301,18 @@
                 if (startDate && endDate) {
                     fetchData('CUSTOM', startDate, endDate);
                 }
+            });
+
+            // Event listeners for new filter fields
+            [modeSelect, langCodeSelect, voToggle].forEach(element => {
+                element.addEventListener('change', function() {
+                    const selectedRange = timeRangeSelect.value;
+                    if (selectedRange === 'CUSTOM' && startDateInput.value && endDateInput.value) {
+                        fetchData('CUSTOM', startDateInput.value, endDateInput.value);
+                    } else {
+                        fetchData(selectedRange);
+                    }
+                });
             });
 
             // Fetch initial data for last month
