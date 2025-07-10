@@ -14,6 +14,7 @@ class AuthManager {
         console.log('Checking authentication:');
         console.log('- Auth token:', authToken ? 'Present' : 'Missing');
         console.log('- Session expiry:', sessionExpiry);
+        console.log('Auth token:', authToken);
         
         if (!authToken || !sessionExpiry) {
             console.log('Authentication failed: missing token or expiry');
