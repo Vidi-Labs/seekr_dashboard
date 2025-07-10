@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>API Logs</title>
+    <title>Inactive Users</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -93,7 +93,7 @@
                             <a href="active_users.html" class="nav-link">Active Users Logs</a>
                         </li>
                         <li>
-                            <a href="inactive_users.html" class="nav-link">Inactive Users</a>
+                            <a href="inactive_users.html" class="nav-link active">Inactive Users</a>
                         </li>
                         <li>
                             <a href="location_logs.html" class="nav-link">Location Logs</a>
@@ -102,10 +102,44 @@
                             <a href="event_logs.html" class="nav-link">Event Logs</a>
                         </li>
                         <li>
-                            <a href="api_logs.html" class="nav-link active">API Logs</a>
+                            <a href="api_logs.html" class="nav-link">Api Logs</a>
                         </li>
                     </ul>
                     <button id="logoutBtn" class="btn btn-danger w-100 mt-3">Logout</button>
+                </div>
+            </div>
+
+            <!-- Offcanvas Sidebar for Mobile -->
+            <div class="offcanvas offcanvas-start sidebar-offcanvas" tabindex="-1" id="offcanvasSidebar">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title">Seekr</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body">
+                    <ul class="nav nav-pills flex-column mb-auto">
+                        <li class="nav-item">
+                            <a href="index.html" class="nav-link">Overview</a>
+                        </li>
+                        <li>
+                            <a href="users_logs.html" class="nav-link">Users Logs</a>
+                        </li>
+                        <li>
+                            <a href="active_users.html" class="nav-link">Active Users Logs</a>
+                        </li>
+                        <li>
+                            <a href="inactive_users.html" class="nav-link active">Inactive Users</a>
+                        </li>
+                        <li>
+                            <a href="location_logs.html" class="nav-link">Location Logs</a>
+                        </li>
+                        <li>
+                            <a href="event_logs.html" class="nav-link">Event Logs</a>
+                        </li>
+                        <li>
+                            <a href="api_logs.html" class="nav-link">Api Logs</a>
+                        </li>
+                    </ul>
+                    <button id="logoutBtnMobile" class="btn btn-danger w-100 mt-3">Logout</button>
                 </div>
             </div>
 
@@ -115,7 +149,7 @@
                     <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasSidebar" aria-controls="offcanvasSidebar">
                         <span class="navbar-toggler-icon"></span>
                     </button>
-                    <span class="navbar-brand mb-0 h1">API Logs</span>
+                    <span class="navbar-brand mb-0 h1">Inactive Users</span>
                 </nav>
 
                 <div class="container">
@@ -137,20 +171,20 @@
                                         <option value="BACKGROUND">Background</option>
                                     </select>
                                 </div>
-                                                            <div class="col-md-3">
-                                <select class="form-select" id="langCodeSelect">
-                                    <option value="">ALL</option>
-                                    <option value="en_US">English (US)</option>
-                                    <option value="ja_JP">Japanese (JP)</option>
-                                    <option value="es_ES">Spanish (ES)</option>
-                                    <option value="ko_KR">Korean (KR)</option>
-                                    <option value="tl_PH">Tagalog (PH)</option>
-                                    <option value="ms_MY">Malay (MY)</option>
-                                    <option value="hi_IN">Hindi (IN)</option>
-                                    <option value="zh_CN">Chinese (CN)</option>
-                                    <option value="zh_HK">Chinese (HK)</option>
-                                </select>
-                            </div>
+                                <div class="col-md-3">
+                                    <select class="form-select" id="langCodeSelect">
+                                        <option value="">ALL</option>
+                                        <option value="en_US">English (US)</option>
+                                        <option value="ja_JP">Japanese (JP)</option>
+                                        <option value="es_ES">Spanish (ES)</option>
+                                        <option value="ko_KR">Korean (KR)</option>
+                                        <option value="tl_PH">Tagalog (PH)</option>
+                                        <option value="ms_MY">Malay (MY)</option>
+                                        <option value="hi_IN">Hindi (IN)</option>
+                                        <option value="zh_CN">Chinese (CN)</option>
+                                        <option value="zh_HK">Chinese (HK)</option>
+                                    </select>
+                                </div>
                                 <div class="col-md-3">
                                     <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="voToggle">
@@ -164,30 +198,33 @@
                             <input type="date" id="startDate" class="form-control mb-2" placeholder="Start Date">
                             <input type="date" id="endDate" class="form-control" placeholder="End Date">
                         </div>
-                        <!-- Card for Total Requests -->
+                        <!-- Card for Total Inactive Users -->
                         <div class="col-md-12 mb-3">
                             <div class="card card-custom p-3">
-                                <h5>Total Requests</h5>
-                                <p id="totalRequests">0</p>
+                                <h5>Total Inactive Users</h5>
+                                <p id="totalInactiveUsers">0</p>
                             </div>
                         </div>
                     </div>
-                    <!-- Table for API Request Details -->
+                    <!-- Table for Inactive User Details -->
                     <div class="row mt-3">
                         <div class="col-md-12 mb-3">
                             <div class="card chart-card">
                                 <div class="card-body">
-                                    <h5 class="card-title">API Request Details</h5>
+                                    <h5 class="card-title">Inactive User Details</h5>
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th scope="col">Date</th>
-                                                <th scope="col">Request Type</th>
-                                                <th scope="col">Count</th>
+                                                <th scope="col">User ID</th>
+                                                <th scope="col">Name</th>
+                                                <th scope="col">Email</th>
+                                                <th scope="col">Phone Number</th>
+                                                <th scope="col">Is Anonymous</th>
+                                                <th scope="col">Last Activity</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="apiLogsTable">
-                                            <!-- Dynamic API log rows will be inserted here -->
+                                        <tbody id="inactiveUsersTable">
+                                            <!-- Dynamic inactive user rows will be inserted here -->
                                         </tbody>
                                     </table>
                                 </div>
@@ -203,31 +240,33 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Redirect to login if not authenticated
-        if (!document.cookie.split('; ').find(row => row.startsWith('apiKeyCookie='))) {
-            window.location.href = 'login.html';
-        }
-
         document.addEventListener('DOMContentLoaded', function () {
             const timeRangeSelect = document.getElementById('timeRangeSelect');
             const dateRangePicker = document.getElementById('dateRangePicker');
             const startDateInput = document.getElementById('startDate');
             const endDateInput = document.getElementById('endDate');
-            const totalRequestsElement = document.getElementById('totalRequests');
-            const apiLogsTable = document.getElementById('apiLogsTable');
+            const voToggle = document.getElementById('voToggle');
             const modeSelect = document.getElementById('modeSelect');
             const langCodeSelect = document.getElementById('langCodeSelect');
-            const voToggle = document.getElementById('voToggle');
 
-            // Function to fetch data based on selected time range
-            const fetchData = (timeRange, startDate = null, endDate = null) => {
+            // Redirect to login if not authenticated
+            if (!document.cookie.split('; ').find(row => row.startsWith('apiKeyCookie='))) {
+                window.location.href = 'login.html';
+            }
+
+            // Function to fetch inactive users data based on selected filters
+            const fetchInactiveUsersData = (timeRange, startDate = null, endDate = null) => {
+                // Show loading indicator
+                const tableBody = document.getElementById('inactiveUsersTable');
+                tableBody.innerHTML = '<tr><td colspan="6" class="text-center">Loading...</td></tr>';
+
                 // Prepare API URL and parameters
-                const url = 'https://seekr-analytics.squadhead.workers.dev/analytics/daily-request-report';
+                const url = 'https://seekr-analytics.squadhead.workers.dev/analytics/inactive-users';
 
                 let params = {
+                    voActivated: voToggle.checked,
                     mode: modeSelect.value,
-                    langCode: langCodeSelect.value,
-                    voActivated: voToggle.checked
+                    langCode: langCodeSelect.value
                 };
 
                 if (timeRange === 'CUSTOM') {
@@ -256,71 +295,99 @@
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Clear previous data
-                    apiLogsTable.innerHTML = '';
-                    let totalRequests = 0;
+                    console.log('API response:', data);
 
-                    // Process the new API response
-                    if (data.success && data.data) {
-                        Object.entries(data.data).forEach(([date, requests]) => {
-                            Object.entries(requests).forEach(([requestType, count]) => {
-                                totalRequests += count;
+                    if (data.success && data.data && Array.isArray(data.data)) {
+                        // Update total count
+                        document.getElementById('totalInactiveUsers').textContent = data.data.length;
+                        
+                        // Update table
+                        const tableBody = document.getElementById('inactiveUsersTable');
+                        tableBody.innerHTML = '';
+
+                        if (data.data.length === 0) {
+                            tableBody.innerHTML = '<tr><td colspan="6" class="text-center">No inactive users found</td></tr>';
+                        } else {
+                            data.data.forEach(user => {
                                 const row = `
                                     <tr>
-                                        <td>${date}</td>
-                                        <td>${requestType}</td>
-                                        <td>${count}</td>
+                                        <td>${user.uid}</td>
+                                        <td>${user.name || 'N/A'}</td>
+                                        <td>${user.email || 'N/A'}</td>
+                                        <td>${user.phoneNumber || 'N/A'}</td>
+                                        <td>${user.isAnonymous ? 'Yes' : 'No'}</td>
+                                        <td>${user.lastActivity || 'N/A'}</td>
                                     </tr>
                                 `;
-                                apiLogsTable.insertAdjacentHTML('beforeend', row);
+                                tableBody.insertAdjacentHTML('beforeend', row);
                             });
-                        });
+                        }
                     } else {
-                        apiLogsTable.innerHTML = '<tr><td colspan="3">No data available</td></tr>';
+                        console.error('Unexpected data format:', data);
+                        document.getElementById('totalInactiveUsers').textContent = '0';
+                        document.getElementById('inactiveUsersTable').innerHTML = '<tr><td colspan="6" class="text-center">No data available</td></tr>';
                     }
-
-                    // Update the total requests count
-                    totalRequestsElement.textContent = totalRequests;
                 })
                 .catch(error => {
-                    console.error('Error fetching API data:', error);
+                    console.error('Error fetching inactive users data:', error);
+                    document.getElementById('totalInactiveUsers').textContent = '0';
+                    document.getElementById('inactiveUsersTable').innerHTML = '<tr><td colspan="6" class="text-center">Error loading data</td></tr>';
                 });
             };
 
-            // Handle time range selection change
+            // Event listener for time range selection
             timeRangeSelect.addEventListener('change', function () {
                 const selectedRange = timeRangeSelect.value;
+
                 if (selectedRange === 'CUSTOM') {
                     dateRangePicker.classList.remove('d-none');
                 } else {
                     dateRangePicker.classList.add('d-none');
-                    fetchData(selectedRange);
+                    fetchInactiveUsersData(selectedRange);
                 }
             });
 
-            // Handle custom date range submission
-            endDateInput.addEventListener('change', function () {
-                const startDate = startDateInput.value;
-                const endDate = endDateInput.value;
-                if (startDate && endDate) {
-                    fetchData('CUSTOM', startDate, endDate);
+            // Event listener for VO toggle
+            voToggle.addEventListener('change', function() {
+                const selectedRange = timeRangeSelect.value;
+                if (selectedRange === 'CUSTOM' && startDateInput.value && endDateInput.value) {
+                    fetchInactiveUsersData('CUSTOM', startDateInput.value, endDateInput.value);
+                } else {
+                    fetchInactiveUsersData(selectedRange);
                 }
             });
 
-            // Event listeners for new filter fields
-            [modeSelect, langCodeSelect, voToggle].forEach(element => {
-                element.addEventListener('change', function() {
-                    const selectedRange = timeRangeSelect.value;
-                    if (selectedRange === 'CUSTOM' && startDateInput.value && endDateInput.value) {
-                        fetchData('CUSTOM', startDateInput.value, endDateInput.value);
-                    } else {
-                        fetchData(selectedRange);
+            // Event listener for mode selection
+            modeSelect.addEventListener('change', function() {
+                const selectedRange = timeRangeSelect.value;
+                if (selectedRange === 'CUSTOM' && startDateInput.value && endDateInput.value) {
+                    fetchInactiveUsersData('CUSTOM', startDateInput.value, endDateInput.value);
+                } else {
+                    fetchInactiveUsersData(selectedRange);
+                }
+            });
+
+            // Event listener for language code selection
+            langCodeSelect.addEventListener('change', function() {
+                const selectedRange = timeRangeSelect.value;
+                if (selectedRange === 'CUSTOM' && startDateInput.value && endDateInput.value) {
+                    fetchInactiveUsersData('CUSTOM', startDateInput.value, endDateInput.value);
+                } else {
+                    fetchInactiveUsersData(selectedRange);
+                }
+            });
+
+            // Event listener for date range picker
+            [startDateInput, endDateInput].forEach(input => {
+                input.addEventListener('change', function () {
+                    if (startDateInput.value && endDateInput.value) {
+                        fetchInactiveUsersData('CUSTOM', startDateInput.value, endDateInput.value);
                     }
                 });
             });
 
-            // Fetch initial data for last month
-            fetchData('LAST_MONTH');
+            // Fetch initial data for "Last Month" on page load
+            fetchInactiveUsersData('LAST_MONTH');
         });
 
         function handleLogout() {
@@ -334,7 +401,7 @@
             });
         }
         document.getElementById('logoutBtn').onclick = handleLogout;
+        document.getElementById('logoutBtnMobile').onclick = handleLogout;
     </script>
 </body>
-
-</html>
+</html> 
