@@ -357,7 +357,7 @@
                 .then(data => {
                     if (data.success) {
                         const countriesData = data.data.reduce((acc, location) => {
-                            const country = location.country || 'Unknown';
+                            const country = (location.address && location.address.country) ? location.address.country : 'Unknown';
                             acc[country] = (acc[country] || 0) + 1;
                             return acc;
                         }, {});
