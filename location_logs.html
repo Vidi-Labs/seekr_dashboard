@@ -98,6 +98,24 @@
                         <div class="col-md-12 mb-3">
                             <div id="map"></div>
                         </div>
+                        <div class="col-md-12 mb-3">
+                            <div class="card card-custom p-3">
+                                <h5>Users by Country</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="countryUserTable">
+                                        <thead>
+                                            <tr>
+                                                <th>Country</th>
+                                                <th>User Count</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <!-- Data will be inserted here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -153,6 +171,26 @@
                                         </div>
                                     `);
                                 }
+                            });
+
+                            // Update country-user table
+                            const countryUserTableBody = document.querySelector('#countryUserTable tbody');
+                            const countryUserCount = {};
+                            data.data.forEach(location => {
+                                const country = (location.address && location.address.country) ? location.address.country : 'Unknown';
+                                const userId = location.app_session && location.app_session.userId;
+                                if (country && userId) {
+                                    if (!countryUserCount[country]) {
+                                        countryUserCount[country] = new Set();
+                                    }
+                                    countryUserCount[country].add(userId);
+                                }
+                            });
+                            countryUserTableBody.innerHTML = '';
+                            Object.entries(countryUserCount).forEach(([country, userSet]) => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `<td>${country}</td><td>${userSet.size}</td>`;
+                                countryUserTableBody.appendChild(row);
                             });
                         }
                     })
