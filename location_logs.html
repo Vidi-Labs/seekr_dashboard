@@ -85,36 +85,6 @@
                                             <option value="CUSTOM">Custom Date Range</option>
                                         </select>
                                     </div>
-                                    <div class="col-md-3">
-                                        <label for="modeSelect" class="form-label">Mode</label>
-                                        <select id="modeSelect" class="form-select">
-                                            <option value="ALL">All Modes</option>
-                                            <option value="FOREGROUND">Foreground</option>
-                                            <option value="BACKGROUND">Background</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label for="langCodeSelect" class="form-label">Language</label>
-                                        <select id="langCodeSelect" class="form-select">
-                                            <option value="">ALL</option>
-                                            <option value="en_US">English (US)</option>
-                                            <option value="ja_JP">Japanese (JP)</option>
-                                            <option value="es_ES">Spanish (ES)</option>
-                                            <option value="ko_KR">Korean (KR)</option>
-                                            <option value="tl_PH">Tagalog (PH)</option>
-                                            <option value="ms_MY">Malay (MY)</option>
-                                            <option value="hi_IN">Hindi (IN)</option>
-                                            <option value="zh_CN">Chinese (CN)</option>
-                                            <option value="zh_HK">Chinese (HK)</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label">Visually Impaired</label>
-                                        <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" id="voToggle">
-                                            <label class="form-check-label" for="voToggle">VO Activated</label>
-                                        </div>
-                                    </div>
                                 </div>
                                 <div id="customDateRange" class="mt-3 d-none">
                                     <label for="startDate" class="form-label">Start Date</label>
@@ -148,9 +118,6 @@
 
             const timeRangeSelect = document.getElementById('timeRangeSelect');
             const customDateRange = document.getElementById('customDateRange');
-            const modeSelect = document.getElementById('modeSelect');
-            const langCodeSelect = document.getElementById('langCodeSelect');
-            const voToggle = document.getElementById('voToggle');
 
             const fetchLocationData = (params) => {
                 fetch('https://seekr-analytics.squadhead.workers.dev/analytics/location', {
@@ -189,10 +156,7 @@
 
             // Fetch initial data for LAST_MONTH
             const initialParams = {
-                lastActivity: 'LAST_MONTH',
-                mode: modeSelect.value,
-                langCode: langCodeSelect.value,
-                voActivated: voToggle.checked
+                lastActivity: 'LAST_MONTH'
             };
             fetchLocationData(initialParams);
 
@@ -207,10 +171,7 @@
                     customDateRange.classList.add('d-none');
                                     if (timeRange === 'LAST_MONTH' || timeRange === 'LAST_WEEK') {
                     params = {
-                        lastActivity: timeRange,
-                        mode: modeSelect.value,
-                        langCode: langCodeSelect.value,
-                        voActivated: voToggle.checked
+                        lastActivity: timeRange
                     };
                     fetchLocationData(params);
                 }
@@ -229,38 +190,7 @@
                             dateRange: {
                                 from: startDateInput.value,
                                 to: endDateInput.value
-                            },
-                            mode: modeSelect.value,
-                            langCode: langCodeSelect.value,
-                            voActivated: voToggle.checked
-                        };
-                        fetchLocationData(params);
-                    }
-                });
-            });
-
-            // Event listeners for new filter fields
-            [modeSelect, langCodeSelect, voToggle].forEach(element => {
-                element.addEventListener('change', () => {
-                    const timeRange = timeRangeSelect.value;
-                    if (timeRange === 'CUSTOM' && startDateInput.value && endDateInput.value) {
-                        const params = {
-                            lastActivity: 'CUSTOM',
-                            dateRange: {
-                                from: startDateInput.value,
-                                to: endDateInput.value
-                            },
-                            mode: modeSelect.value,
-                            langCode: langCodeSelect.value,
-                            voActivated: voToggle.checked
-                        };
-                        fetchLocationData(params);
-                    } else if (timeRange === 'LAST_MONTH' || timeRange === 'LAST_WEEK') {
-                        const params = {
-                            lastActivity: timeRange,
-                            mode: modeSelect.value,
-                            langCode: langCodeSelect.value,
-                            voActivated: voToggle.checked
+                            }
                         };
                         fetchLocationData(params);
                     }

@@ -350,7 +350,9 @@
         }
 
         function updatePieChart(timeRange, startDate = null, endDate = null) {
-            let params = buildParams(timeRange, startDate, endDate);
+            let params = (timeRange === 'CUSTOM')
+                ? { lastActivity: 'CUSTOM', dateRange: { from: startDate, to: endDate } }
+                : { lastActivity: timeRange };
             fetchData('https://seekr-analytics.squadhead.workers.dev/analytics/location', params)
                 .then(data => {
                     if (data.success) {
